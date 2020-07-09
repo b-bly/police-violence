@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
 import { Legend } from './legend';
 import { formatFips, toTitleCase } from './utility';
+import FatalService from './fatalService';
 
 const geoUrl = "https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json";
 
@@ -43,38 +44,26 @@ interface graphProps {
 }
 
 export const Graph: React.FC<any> = (props: any) => {
+    const fatalService = new FatalService();
     const [data, setData] = useState<any>({});
-    const [countyFips, setCountyFips] = useState<any>([]);
     const [range, setRange] = useState<any>(maxRange);
     const [colorScaleQuantiles, setColorScaleQuantiles] = useState<any>(null);
 
     useEffect(() => {
-        if (countyFips && countyFips.length < 1) {
-            csv("./data/county_fips.csv")
-                .then((counties: any) => {
-                    counties = counties.map((record: any) => {
-                        record.FIPS = formatFips(record.FIPS);
-                        return record;
-                    });
-                    setCountyFips(counties);
-                    csv("./data/fatal_encounters.csv", (deaths: any) => {
-                        const county = toTitleCase(deaths['Location of death (county)']);
-                        const fipsRecord = counties.find((x: any) => x.Name === county);
-                        return {
-                            fips: fipsRecord ? fipsRecord.FIPS : county
-                        }
-                    }).then((d: any) => {
-                        d = formatData(d);
-                        setData(d);
-                        // animateData();
-                        setRange(maxRange);
-                        let colorScaleQuantiles = getColorScale(maxRange);
-                        setColorScaleQuantiles(colorScaleQuantiles.quantiles());
-                    }).catch((e: Error) => console.log(e));
-                }).catch((e: Error) => console.log(e));
-
-
+        
+        const getData = async () => {
+            if (data && Object.keys(data).length < 1) {
+                let colorScale = getColorScale(maxRange);
+                const deathData = await fatalService.getTotalDeathsByCounty();
+                setData(deathData);
+                // animateData();
+                setRange(maxRange); // if not animated
+                // setRange(1); // for when animating data
+                setColorScaleQuantiles(colorScale.quantiles());
+            }
         }
+        getData();
+
         // https://docs.google.com/spreadsheets/d/1dKmaV_JiWcG8XBoRgP8b4e9Eopkpgt7FL7nyspvzAsE/edit#gid=0
 
         // county fips
@@ -90,30 +79,23 @@ export const Graph: React.FC<any> = (props: any) => {
         return deathsByCounty;
     }
 
-     function getColorScale(range: number) {
+    function getColorScale(range: number) {
         let colorScale = scaleQuantile()
             .domain(
                 _.uniq(Object.keys(data).map((key: string) => data[key]))
             )
             .range(Array.from(Array(range).keys()));
+            console.log(typeof colorScale)
         return colorScale;
     }
 
-
-
-
-    let colorScale = scaleQuantile()
-        .domain(
-            _.uniq(Object.keys(data).map((key: string) => data[key]))
-        )
-        .range(Array.from(Array(range).keys()));
-
+    let colorScale = getColorScale(9);
 
     const animateData = () => {
-        let repeats = 4;
+        let repeats = 6;
         let offset = 1;
-        let timeout = 0;
         const animationTime = 4000;
+        let timeout = 0;
         const timeDiff = animationTime / repeats;
         for (let i = 0; i < repeats; i++) {
             timeout += timeDiff;
@@ -126,10 +108,10 @@ export const Graph: React.FC<any> = (props: any) => {
 
     }
 
-
     return (
         <div>
-            {colorScale ?
+            {Object.keys(data).length > 0 && colorMap &&  colorScale ?
+            
                 <div style={style.flexRow}>
                     <div style={style.block}>
                         <ComposableMap projection="geoAlbersUsa">
@@ -149,7 +131,7 @@ export const Graph: React.FC<any> = (props: any) => {
                             </Geographies>
                         </ComposableMap>
                     </div>
-                    <Legend 
+                    <Legend
                         colorMap={colorMap}
                         colorScaleQuantiles={colorScale.quantiles()}
                         label={'fatalities'}
@@ -157,7 +139,7 @@ export const Graph: React.FC<any> = (props: any) => {
 
                 </div>
                 :
-                <div>loading</div>
+                <h1>loading</h1>
             }
 
         </div>
