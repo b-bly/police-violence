@@ -42,7 +42,6 @@ interface LegendProps {
 }
 
 export const Legend: React.FC<LegendProps> = ({ colorMap, colorScaleQuantiles, label }) => {
-  if (colorScaleQuantiles) console.log(colorScaleQuantiles);
   return (
     <div style={style.legendContainer}>
       <div style={style.legendCard}>

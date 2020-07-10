@@ -23,8 +23,8 @@ library.add(faSpinner);
 //     "#782618"
 // ];
 
-const colorMap = ["rgb(227,108,236)", "rgb(198,98,217)", "rgb(170,89,198)", "rgb(142,79,179)", 
-"rgb(113,70,160)", "rgb(85,60,141)", "rgb(57,51,122)", "rgb(28,41,103)", "rgb(0,32,84)"].reverse();
+const colorMap = ["rgb(227,108,236)", "rgb(198,98,217)", "rgb(170,89,198)", "rgb(142,79,179)",
+    "rgb(113,70,160)", "rgb(85,60,141)", "rgb(57,51,122)", "rgb(28,41,103)", "rgb(0,32,84)"].reverse();
 
 const maxRange = colorMap.length;
 
@@ -41,8 +41,6 @@ const style = {
 }
 
 const locations = ['states', 'counties'];
-const dependentVariables = ['deaths', 'blacksToWhiteRatio'];
-const years = ['All']; // TODO generate from data   
 
 interface graphProps {
 
@@ -50,48 +48,41 @@ interface graphProps {
 
 export const Graph: React.FC<any> = (props: any) => {
     const fatalService = new FatalService();
+    const [dropdownOpen, setDropdownOpen] = useState('');
+    const [loading, setLoading] = useState(true);
     const [data, setData] = useState<any>({});
-    const [range, setRange] = useState<any>(maxRange);
     const [location, setLocation] = useState<string>('states');
-    const [geoUrl, setGeoUrl] = useState<string>(getGeoUrl());
-    const [loading, setLoading] = useState<boolean>(true);
+    const [geoUrl, setGeoUrl] = useState<string>(getGeoUrl('states'));
+    const [yearsRange, setYearsRange] = useState<string[]>([]);
     // const [dependent, setDependent] = useState<string>('deaths');
-    // const [years, setYears] = useState<string>('years');
+    const [year, setYear] = useState<string>('all');
 
-    const getData = async (location: string) => {
+    const getData = async (newLocation?: string, newYear?: string) => {
         setLoading(true);
-        let colorScale = getColorScale(maxRange);
+        if (!newLocation) { newLocation = location }
+        if (!newYear) { newYear = year }
         let deathData;
-        if (location === 'counties') {
-            deathData = await fatalService.getTotalDeathsByCounty();
+        if (newLocation === 'counties') {
+            if (newYear === 'all') {
+                deathData = await fatalService.getTotalDeathsByCounty();
+            } else {
+                deathData = await fatalService.getTotalDeathsByCountyForYear(newYear);
+            }
 
-        } else if (location === 'states') {
-            deathData = await fatalService.getTotalDeathsByState();
+        } else if (newLocation === 'states') {
+            if (newYear === 'all') {
+                deathData = await fatalService.getTotalDeathsByState();
+            } else {
+                deathData = await fatalService.getTotalDeathsByStateForYear(newYear);
+            }
         }
-
         setData(deathData);
         // animateData();
-        setRange(maxRange); // if not animated
         // setRange(1); // for when animating data
         setLoading(false);
     }
 
-    useEffect(() => {
-        if (data && Object.keys(data).length < 1) {
-            getData(location);
-        }
-        // https://docs.google.com/spreadsheets/d/1dKmaV_JiWcG8XBoRgP8b4e9Eopkpgt7FL7nyspvzAsE/edit#gid=0
-        // county fips
-        // https://www.nrcs.usda.gov/wps/portal/nrcs/detail/national/home/?cid=nrcs143_013697
-    });
-
-    async function selectLocation(newLocation: string) {
-        await setLocation(newLocation);
-        setGeoUrl(getGeoUrl(newLocation));
-        await getData(newLocation);
-    }
-
-    function getGeoUrl(newLocation?: string) {
+    function getGeoUrl (newLocation?: string) {
         if (!newLocation) { newLocation = location }
         if (newLocation === 'counties') {
             return "https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json";
@@ -101,7 +92,34 @@ export const Graph: React.FC<any> = (props: any) => {
         return '';
     }
 
-    function getColorScale(range: number) {
+    const handleClickOutside = () => {
+        setDropdownOpen('');
+    }
+   
+
+    const load = () => {
+        if (yearsRange.length < 1) {
+            fatalService.getYearsRange().then(yearsRange => {
+                yearsRange = yearsRange.map(year => year.toString());
+                setYearsRange([ 'all', ...yearsRange ]);
+            });
+        }
+    }
+
+    const selectLocation = async (newLocation: string) => {
+        await setLocation(newLocation);
+        setGeoUrl(getGeoUrl(newLocation));
+        await getData(newLocation);
+    }
+
+    const selectYear = async (newYear: string) => {
+        await setYear(newYear);
+        await getData(location, newYear);
+    }
+
+
+
+    const getColorScale = (range: number) => {
         let colorScale = scaleQuantile()
             .domain(
                 _.uniq(Object.keys(data).map((key: string) => data[key]))
@@ -111,6 +129,7 @@ export const Graph: React.FC<any> = (props: any) => {
     }
 
     let colorScale = getColorScale(maxRange);
+
 
     // const animateData = () => {
     //     let repeats = 6;
@@ -134,23 +153,43 @@ export const Graph: React.FC<any> = (props: any) => {
         return quantiles;
     }
 
+    useEffect(() => {
+        if (data && Object.keys(data).length < 1) {
+            getData(location);
+            load();
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return  function cleanup  () {
+            // remove event listener
+            document.removeEventListener("mousedown", handleClickOutside);
+        }
+        // https://docs.google.com/spreadsheets/d/1dKmaV_JiWcG8XBoRgP8b4e9Eopkpgt7FL7nyspvzAsE/edit#gid=0
+        // county fips
+        // https://www.nrcs.usda.gov/wps/portal/nrcs/detail/national/home/?cid=nrcs143_013697
+    });
+
     return (
         <div>
             <div className="flex-row">
-                {/* <Dropdown
-                    choices={years}
-                    label="Location"
-                    setSelected={selectLocation}
-                    selected={location}
-                /> */}
+                <Dropdown
+                    choices={yearsRange}
+                    label="Years"
+                    setSelected={selectYear}
+                    selected={year}
+                    setDropdownOpen={setDropdownOpen}
+                    dropdownOpen={dropdownOpen}
+                />
                 <Dropdown
                     choices={locations}
                     label="Location"
                     setSelected={selectLocation}
                     selected={location}
+                    setDropdownOpen={setDropdownOpen}
+                    dropdownOpen={dropdownOpen}
                 />
             </div>
-            {Object.keys(data).length > 0 && colorMap && colorScale ?
+            {/* {Object.keys(data).length > 0 && colorMap && colorScale ? */}
+            {!loading ?
 
                 <div style={style.flexRow}>
                     <div style={style.block}>
