@@ -6,7 +6,11 @@ import FatalService from '../services/fatalService';
 import { Dropdown } from '../components/Dropdown';
 import './GraphStyle.css';
 import { Legend } from '../components/Legend';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { library } from "@fortawesome/fontawesome-svg-core";
+import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
+library.add(faSpinner);
 // const colorMap = [
 //     "#ffedea",
 //     "#ffcec5",
@@ -19,9 +23,8 @@ import { Legend } from '../components/Legend';
 //     "#782618"
 // ];
 
-const colorMap = ["rgb(240,116,246)", "rgb(225,114,237)", "rgb(208,113,227)", 
-"rgb(190,111,217)", "rgb(170,109,207)", "rgb(147,108,196)", "rgb(120,106,184)", "rgb(85,105,172)", 
-"rgb(0,103,158)"].reverse();
+const colorMap = ["rgb(227,108,236)", "rgb(198,98,217)", "rgb(170,89,198)", "rgb(142,79,179)", 
+"rgb(113,70,160)", "rgb(85,60,141)", "rgb(57,51,122)", "rgb(28,41,103)", "rgb(0,32,84)"].reverse();
 
 const maxRange = colorMap.length;
 
@@ -50,11 +53,13 @@ export const Graph: React.FC<any> = (props: any) => {
     const [data, setData] = useState<any>({});
     const [range, setRange] = useState<any>(maxRange);
     const [location, setLocation] = useState<string>('states');
-    const [geoUrl, setGeoUrl] = useState<string>(getGeoUrl())
+    const [geoUrl, setGeoUrl] = useState<string>(getGeoUrl());
+    const [loading, setLoading] = useState<boolean>(true);
     // const [dependent, setDependent] = useState<string>('deaths');
     // const [years, setYears] = useState<string>('years');
 
     const getData = async (location: string) => {
+        setLoading(true);
         let colorScale = getColorScale(maxRange);
         let deathData;
         if (location === 'counties') {
@@ -68,6 +73,7 @@ export const Graph: React.FC<any> = (props: any) => {
         // animateData();
         setRange(maxRange); // if not animated
         // setRange(1); // for when animating data
+        setLoading(false);
     }
 
     useEffect(() => {
@@ -173,7 +179,9 @@ export const Graph: React.FC<any> = (props: any) => {
 
                 </div>
                 :
-                <h1>loading</h1>
+                <div className="loader-container">
+                    <FontAwesomeIcon icon="spinner" spin style={{ color: 'white', fontSize: '25px' }} />
+                </div>
             }
 
         </div>

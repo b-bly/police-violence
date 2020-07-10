@@ -2,3 +2,11 @@
   display: flex;
   justify-content: space-around;
 }
+
+.loader-container {
+  display: flex;
+  height: 100vh;
+  width: 100vh;
+  justify-content: center;
+  margin-top: 200px;
+}
