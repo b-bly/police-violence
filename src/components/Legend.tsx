@@ -35,13 +35,13 @@ const style: any = {
   }
 }
 
-interface legendProps {
+interface LegendProps {
   colorMap: string[],
   colorScaleQuantiles: any,
   label: string
 }
 
-export const Legend: React.FC<legendProps> = ({ colorMap, colorScaleQuantiles, label }) => {
+export const Legend: React.FC<LegendProps> = ({ colorMap, colorScaleQuantiles, label }) => {
   if (colorScaleQuantiles) console.log(colorScaleQuantiles);
   return (
     <div style={style.legendContainer}>
@@ -49,7 +49,7 @@ export const Legend: React.FC<legendProps> = ({ colorMap, colorScaleQuantiles, l
         {colorMap.map((color, i) =>
           <div style={style.legendRow} key={i.toString()}>
             <div style={{ ...style.colorSquare, backgroundColor: color }} ></div>
-        {colorScaleQuantiles && <div style={style.legendLabel}>{parseInt(colorScaleQuantiles[i])} people</div> }
+        {colorScaleQuantiles && <div style={style.legendLabel}>{colorScaleQuantiles[i]} {label}</div> }
           </div>
         )}
       </div>

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Graph } from './graph';
+import { Graph } from './screens/Graph';
 
 interface AppProps {
 
