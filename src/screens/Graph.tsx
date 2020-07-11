@@ -182,10 +182,10 @@ export const Graph: React.FC<graphProps> = ({height}) => {
             getData(location);
             load();
         }
-        document.addEventListener("mousedown", handleClickOutside);
+        document.addEventListener("click", handleClickOutside);
         return function cleanup() {
             // remove event listener
-            document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("click", handleClickOutside);
         }
 
         // https://docs.google.com/spreadsheets/d/1dKmaV_JiWcG8XBoRgP8b4e9Eopkpgt7FL7nyspvzAsE/edit#gid=0
