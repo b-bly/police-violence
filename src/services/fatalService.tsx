@@ -73,7 +73,8 @@ class FatalService {
   async getYearsRange() {
     await this.loadDataIfNotLoaded();
     const years = _.uniq(this.fatalEncountersData.map(data =>
-      new Date(data["Date of injury resulting in death (month/day/year)"]).getFullYear().toString()));
+      new Date(data["Date of injury resulting in death (month/day/year)"]).getFullYear().toString()))
+      .filter(year => parseInt(year) < new Date().getFullYear());
     return ['all', ...years];
   }
 
