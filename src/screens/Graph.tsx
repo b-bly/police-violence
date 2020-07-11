@@ -1,7 +1,7 @@
 import { scaleQuantile } from 'd3-scale';
 import _ from 'lodash';
 import React, { useEffect, useState, Fragment } from 'react';
-import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
+import { ComposableMap, Geographies, Geography, ZoomableGroup, Point } from 'react-simple-maps';
 import FatalService from '../services/fatalService';
 import { Dropdown } from '../components/Dropdown';
 import './GraphStyle.css';
@@ -9,6 +9,7 @@ import { Legend } from '../components/Legend';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+import { sleep } from '../utility';
 
 library.add(faSpinner);
 // const colorMap = [
@@ -46,6 +47,10 @@ interface graphProps {
     width: number,
     height: number
 }
+interface Position {
+    coordinates: Point,
+    zoom: number
+}
 
 export const Graph: React.FC<graphProps> = ({ height }) => {
     const fatalService = FatalService;
@@ -56,9 +61,10 @@ export const Graph: React.FC<graphProps> = ({ height }) => {
     const yearsRef: React.RefObject<HTMLUListElement> = React.createRef();
     const causeOfDeathRef: React.RefObject<HTMLUListElement> = React.createRef();
     const dropdownRefs = [locationRef, yearsRef, causeOfDeathRef];
-    const defaultLocation = 'counties';
+    const defaultLocation = 'states';
     const defaultYear = 'all';
     const defaultCauseOfDeath = 'all';
+    const center: Point = [-96,38];
 
     // state
 
@@ -71,8 +77,8 @@ export const Graph: React.FC<graphProps> = ({ height }) => {
     const [location, setLocation] = useState<string>(defaultLocation);
     const [causeOfDeath, setCauseOfDeath] = useState<string>(defaultCauseOfDeath);
     const [year, setYear] = useState<string>(defaultYear);
+    const [position, setPosition] = useState<Position>({ coordinates: center, zoom: 1 });
 
-    
 
     const handleClickOutside = (event: MouseEvent) => {
         event.preventDefault();
@@ -146,6 +152,8 @@ export const Graph: React.FC<graphProps> = ({ height }) => {
         await setCauseOfDeath(newCause);
         await getData(location, year, causeOfDeath)
     }
+    
+
 
     const getColorScale = (range: number) => {
         let colorScale = scaleQuantile()
@@ -154,6 +162,49 @@ export const Graph: React.FC<graphProps> = ({ height }) => {
             )
             .range(Array.from(Array(range).keys()));
         return colorScale;
+    }
+
+    const validateCoordinates = (coordinates: Point) =>{
+        // ew < increases, sn ^ increases
+        const south = -169;
+        const north = -77;
+        const east = 40;
+        const west = 46;
+
+        if (coordinates[0] < south) { coordinates[0] = south}
+        if (coordinates[0] > north) { coordinates[0] = north }
+        if (coordinates[1] < east) { coordinates[1] = east}
+        if (coordinates[1] > west) { coordinates[1] = west}
+        return coordinates;
+    }
+
+    async function handleZoomAsync(zoom: number) {
+        let coordinates = validateCoordinates(position.coordinates);
+        setPosition({...position, coordinates });
+
+        // sleep is because graph errors if state is set with zoom and coordinates at the same time,
+        // even if coordinates are valid
+
+        await sleep(100);
+        setPosition(pos => ({ ...pos, zoom }));
+    }
+
+    // modified from https://codesandbox.io/s/zoom-controls-iwo3f?from-embed=&file=/src/MapChart.js:1160-1927
+
+    function handleZoomIn() {
+        if (position.zoom >= 4) return;
+        handleZoomAsync(position.zoom * 1.5);
+    }
+
+    function handleZoomOut() {
+        if (position.zoom <= 1) return;
+        handleZoomAsync(position.zoom / 1.5);
+    }
+
+    function handleMoveEnd(position: any) {
+        console.log(position)
+
+        setPosition(position);
     }
 
     let colorScale = getColorScale(maxRange);
@@ -200,21 +251,56 @@ export const Graph: React.FC<graphProps> = ({ height }) => {
     const graph = <div style={style.flexRow}>
         <div style={style.block}>
             <ComposableMap projection="geoAlbersUsa">
-                <Geographies geography={geoUrl}>
-                    {({ geographies }) =>
-                        geographies.map((geo: any) => {
-                            const cur = data[geo.id]; // id == fips county
-                            return (
-                                <Geography
-                                    key={geo.rsmKey}
-                                    geography={geo}
-                                    fill={cur ? colorMap[colorScale(cur)] : "rgb(61, 61, 61)"}
-                                />
-                            );
-                        })
-                    }
-                </Geographies>
+                <ZoomableGroup
+                    zoom={position.zoom}
+                    center={position.coordinates}
+                    onMoveEnd={handleMoveEnd}
+                >
+                    <Geographies geography={geoUrl}>
+                        {({ geographies }) =>
+                            geographies.map((geo: any) => {
+                                const cur = data[geo.id]; // id == fips county
+                                return (
+                                    <Geography
+                                        key={geo.rsmKey}
+                                        geography={geo}
+                                        fill={cur ? colorMap[colorScale(cur)] : "rgb(61, 61, 61)"}
+                                    />
+                                );
+                            })
+                        }
+                    </Geographies>
+                </ZoomableGroup>
             </ComposableMap>
+
+            <div className="controls">
+                <button onClick={handleZoomIn}>
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                    >
+                        <line x1="12" y1="5" x2="12" y2="19" />
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                </button>
+                <button onClick={handleZoomOut}>
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                    >
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                </button>
+            </div>
+
         </div>
         <Legend
             colorMap={colorMap}
