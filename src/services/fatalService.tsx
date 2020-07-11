@@ -119,4 +119,4 @@ class FatalService {
   }
 }
 
-export default FatalService;
+export default new FatalService();

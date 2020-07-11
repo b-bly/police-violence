@@ -8,12 +8,14 @@ interface DropdownProps {
   setSelected: Function,
   selected: string,
   dropdownOpen: string,
-  setDropdownOpen: Function
+  setDropdownOpen: Function,
+  height: number
 };
 
 
 
-export const Dropdown: React.FC<DropdownProps> = ({ listRef, label, choices, setSelected, selected, dropdownOpen, setDropdownOpen }) => {
+export const Dropdown: React.FC<DropdownProps> = ({ listRef, label, choices, 
+  setSelected, selected, dropdownOpen, setDropdownOpen, height }) => {
   const toggleDropdown = (e: React.MouseEvent) => {
     e.preventDefault();
     if (dropdownOpen === label) {
@@ -43,6 +45,7 @@ export const Dropdown: React.FC<DropdownProps> = ({ listRef, label, choices, set
         <ul
           className={`${dropdownOpen === label ? "open" : ""}`}
           ref={listRef}
+          style={{ maxHeight: `${height.toString()}px`}}
         >
           {
             choices.map((choice: string, i) =>

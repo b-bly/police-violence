@@ -43,11 +43,12 @@ const style = {
 const locations = ['states', 'counties'];
 
 interface graphProps {
-
+    width: number,
+    height: number
 }
 
-export const Graph: React.FC<any> = (props: any) => {
-    const fatalService = new FatalService();
+export const Graph: React.FC<graphProps> = ({height}) => {
+    const fatalService = FatalService;
     const [dropdownOpen, setDropdownOpen] = useState('');
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState<any>({});
@@ -68,11 +69,11 @@ export const Graph: React.FC<any> = (props: any) => {
                 if (cur) {
                     if (cur && !cur.contains(event.target as Node)) {
                         // This is an outside click
-                        return false;
+                        return true;
                     }
                 }
             }
-            return true;
+            return false;
         });
         if (outsideClicks.length === dropdownRefs.length) {
             // outside all dropdowns
@@ -232,6 +233,7 @@ export const Graph: React.FC<any> = (props: any) => {
                             selected={year}
                             setDropdownOpen={setDropdownOpen}
                             dropdownOpen={dropdownOpen}
+                            height={height}
                         />
                         <Dropdown
                             listRef={locationRef}
@@ -241,6 +243,7 @@ export const Graph: React.FC<any> = (props: any) => {
                             selected={location}
                             setDropdownOpen={setDropdownOpen}
                             dropdownOpen={dropdownOpen}
+                            height={height}
                         />
                     </div>
 

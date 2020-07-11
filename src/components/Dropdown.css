@@ -88,6 +88,7 @@ p { font-size: 1.2em; font-weight: normal; line-height: 1.35em; color: #343434; 
   margin: 0;
   width: 100%;
   padding: 0;
+  overflow: scroll;
 }
 
 #dropdown ul.open {
