@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useRef, useEffect, useState } from "react";
 import './Dropdown.css';
 
 interface DropdownProps {
+  listRef: React.RefObject<HTMLUListElement>,
   label: string,
   choices: string[],
   setSelected: Function,
@@ -10,26 +11,25 @@ interface DropdownProps {
   setDropdownOpen: Function
 };
 
-// https://codepen.io/jakestuts/pen/nEFyw
 
-export const Dropdown: React.FC<DropdownProps> = ({ label, choices, setSelected, selected, dropdownOpen, setDropdownOpen }) => {
+
+export const Dropdown: React.FC<DropdownProps> = ({ listRef, label, choices, setSelected, selected, dropdownOpen, setDropdownOpen }) => {
   const toggleDropdown = (e: React.MouseEvent) => {
     e.preventDefault();
-    setDropdownOpen(dropdownOpen === label ? '' : label);
+    if (dropdownOpen === label) {
+      setDropdownOpen("");
+      return;
+    }
+    setDropdownOpen(label);
   }
 
   const select = (e: React.MouseEvent) => {
     e.preventDefault();
     if (e.currentTarget.textContent !== null
       && e.currentTarget.textContent !== selected) {
+        console.log('set selected')
       setSelected(e.currentTarget.textContent);
     }
-  }
-
-  const close = (e: React.FocusEvent) => {
-    e.preventDefault();
-    console.log('onblur')
-    setDropdownOpen('');
   }
 
   return (
@@ -38,17 +38,17 @@ export const Dropdown: React.FC<DropdownProps> = ({ label, choices, setSelected,
       <div
         id="dropdown"
         className={`ddmenu ${dropdownOpen ? "open" : ""}`}
-        onBlur={close}
         onClick={toggleDropdown}>
         {`${selected ? selected : label}`}
-        <ul className={`${dropdownOpen === label ? "open" : ""}`}>
+        <ul
+          className={`${dropdownOpen === label ? "open" : ""}`}
+          ref={listRef}
+        >
           {
             choices.map((choice: string, i) =>
-              <li key={i.toString()} onClick={select} value={choice}>{choice}</li>
-
+              <li key={i.toString()} onClick={select} value={choice} className={label}>{choice}</li>
             )
           }
-
         </ul>
       </div>
     </div>

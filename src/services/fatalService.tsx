@@ -43,7 +43,6 @@ class FatalService {
     await this.loadDataIfNotLoaded();
     const years = _.uniq(this.fatalEncountersData.map(data => 
       new Date(data["Date of injury resulting in death (month/day/year)"]).getFullYear().toString()));
-      console.log(years);
       return years;
   }
 

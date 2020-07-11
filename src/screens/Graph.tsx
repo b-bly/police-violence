@@ -1,6 +1,6 @@
 import { scaleQuantile } from 'd3-scale';
 import _ from 'lodash';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Fragment } from 'react';
 import { ComposableMap, Geographies, Geography } from 'react-simple-maps';
 import FatalService from '../services/fatalService';
 import { Dropdown } from '../components/Dropdown';
@@ -56,6 +56,29 @@ export const Graph: React.FC<any> = (props: any) => {
     const [yearsRange, setYearsRange] = useState<string[]>([]);
     // const [dependent, setDependent] = useState<string>('deaths');
     const [year, setYear] = useState<string>('all');
+    const locationRef: React.RefObject<HTMLUListElement> = React.createRef();
+    const yearsRef: React.RefObject<HTMLUListElement> = React.createRef();
+    const dropdownRefs = [locationRef, yearsRef];
+
+    const handleClickOutside = (event: MouseEvent) => {
+        event.preventDefault();
+        const outsideClicks = dropdownRefs.filter((ref) => {
+            if (ref && ref !== null) {
+                const cur = ref.current;
+                if (cur) {
+                    if (cur && !cur.contains(event.target as Node)) {
+                        // This is an outside click
+                        return false;
+                    }
+                }
+            }
+            return true;
+        });
+        if (outsideClicks.length === dropdownRefs.length) {
+            // outside all dropdowns
+            setDropdownOpen('');
+        }
+    };
 
     const getData = async (newLocation?: string, newYear?: string) => {
         setLoading(true);
@@ -82,7 +105,7 @@ export const Graph: React.FC<any> = (props: any) => {
         setLoading(false);
     }
 
-    function getGeoUrl (newLocation?: string) {
+    function getGeoUrl(newLocation?: string) {
         if (!newLocation) { newLocation = location }
         if (newLocation === 'counties') {
             return "https://cdn.jsdelivr.net/npm/us-atlas@3/counties-10m.json";
@@ -92,16 +115,16 @@ export const Graph: React.FC<any> = (props: any) => {
         return '';
     }
 
-    const handleClickOutside = () => {
-        setDropdownOpen('');
-    }
-   
+    // const handleClickOutside = () => {
+    //     setDropdownOpen('');
+    // }
+
 
     const load = () => {
         if (yearsRange.length < 1) {
             fatalService.getYearsRange().then(yearsRange => {
                 yearsRange = yearsRange.map(year => year.toString());
-                setYearsRange([ 'all', ...yearsRange ]);
+                setYearsRange(['all', ...yearsRange]);
             });
         }
     }
@@ -159,71 +182,78 @@ export const Graph: React.FC<any> = (props: any) => {
             load();
         }
         document.addEventListener("mousedown", handleClickOutside);
-        return  function cleanup  () {
+        return function cleanup() {
             // remove event listener
             document.removeEventListener("mousedown", handleClickOutside);
         }
+
         // https://docs.google.com/spreadsheets/d/1dKmaV_JiWcG8XBoRgP8b4e9Eopkpgt7FL7nyspvzAsE/edit#gid=0
         // county fips
         // https://www.nrcs.usda.gov/wps/portal/nrcs/detail/national/home/?cid=nrcs143_013697
     });
 
+    const graph = <div style={style.flexRow}>
+        <div style={style.block}>
+            <ComposableMap projection="geoAlbersUsa">
+                <Geographies geography={geoUrl}>
+                    {({ geographies }) =>
+                        geographies.map((geo: any) => {
+                            const cur = data[geo.id]; // id == fips county
+                            return (
+                                <Geography
+                                    key={geo.rsmKey}
+                                    geography={geo}
+                                    fill={cur ? colorMap[colorScale(cur)] : "rgb(61, 61, 61)"}
+                                />
+                            );
+                        })
+                    }
+                </Geographies>
+            </ComposableMap>
+        </div>
+        <Legend
+            colorMap={colorMap}
+            colorScaleQuantiles={getRange()}
+            label={'deaths'}
+        />
+
+    </div>
     return (
         <div>
-            <div className="flex-row">
-                <Dropdown
-                    choices={yearsRange}
-                    label="Years"
-                    setSelected={selectYear}
-                    selected={year}
-                    setDropdownOpen={setDropdownOpen}
-                    dropdownOpen={dropdownOpen}
-                />
-                <Dropdown
-                    choices={locations}
-                    label="Location"
-                    setSelected={selectLocation}
-                    selected={location}
-                    setDropdownOpen={setDropdownOpen}
-                    dropdownOpen={dropdownOpen}
-                />
-            </div>
-            {/* {Object.keys(data).length > 0 && colorMap && colorScale ? */}
             {!loading ?
+                <Fragment>
 
-                <div style={style.flexRow}>
-                    <div style={style.block}>
-                        <ComposableMap projection="geoAlbersUsa">
-                            <Geographies geography={geoUrl}>
-                                {({ geographies }) =>
-                                    geographies.map((geo: any) => {
-                                        const cur = data[geo.id]; // id == fips county
-                                        return (
-                                            <Geography
-                                                key={geo.rsmKey}
-                                                geography={geo}
-                                                fill={cur ? colorMap[colorScale(cur)] : "rgb(61, 61, 61)"}
-                                            />
-                                        );
-                                    })
-                                }
-                            </Geographies>
-                        </ComposableMap>
+                    < div className="flex-row">
+                        <Dropdown
+                            listRef={yearsRef}
+                            choices={yearsRange}
+                            label="Years"
+                            setSelected={selectYear}
+                            selected={year}
+                            setDropdownOpen={setDropdownOpen}
+                            dropdownOpen={dropdownOpen}
+                        />
+                        <Dropdown
+                            listRef={locationRef}
+                            choices={locations}
+                            label="Region type" // location
+                            setSelected={selectLocation}
+                            selected={location}
+                            setDropdownOpen={setDropdownOpen}
+                            dropdownOpen={dropdownOpen}
+                        />
                     </div>
-                    <Legend
-                        colorMap={colorMap}
-                        colorScaleQuantiles={getRange()}
-                        label={'deaths'}
-                    />
 
-                </div>
+                    {graph}
+                </Fragment>
+
                 :
                 <div className="loader-container">
                     <FontAwesomeIcon icon="spinner" spin style={{ color: 'white', fontSize: '25px' }} />
                 </div>
             }
 
-        </div>
+        </div >
     );
 }
 
