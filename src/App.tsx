@@ -11,8 +11,8 @@ interface AppState {
 }
 
 export default class App extends Component<AppProps, AppState> {
-    constructor() {
-        super({});
+    constructor(props: AppProps) {
+        super(props);
         this.state = {
             width: window.innerWidth,
             height: window.innerHeight

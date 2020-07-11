@@ -47,19 +47,32 @@ interface graphProps {
     height: number
 }
 
-export const Graph: React.FC<graphProps> = ({height}) => {
+export const Graph: React.FC<graphProps> = ({ height }) => {
     const fatalService = FatalService;
+
+    // variables
+
+    const locationRef: React.RefObject<HTMLUListElement> = React.createRef();
+    const yearsRef: React.RefObject<HTMLUListElement> = React.createRef();
+    const causeOfDeathRef: React.RefObject<HTMLUListElement> = React.createRef();
+    const dropdownRefs = [locationRef, yearsRef, causeOfDeathRef];
+    const defaultLocation = 'counties';
+    const defaultYear = 'all';
+    const defaultCauseOfDeath = 'all';
+
+    // state
+
     const [dropdownOpen, setDropdownOpen] = useState('');
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState<any>({});
-    const [location, setLocation] = useState<string>('states');
-    const [geoUrl, setGeoUrl] = useState<string>(getGeoUrl('states'));
+    const [geoUrl, setGeoUrl] = useState<string>(getGeoUrl(defaultLocation));
     const [yearsRange, setYearsRange] = useState<string[]>([]);
-    // const [dependent, setDependent] = useState<string>('deaths');
-    const [year, setYear] = useState<string>('all');
-    const locationRef: React.RefObject<HTMLUListElement> = React.createRef();
-    const yearsRef: React.RefObject<HTMLUListElement> = React.createRef();
-    const dropdownRefs = [locationRef, yearsRef];
+    const [causesOfDeath, setCausesOfDeath] = useState<string[]>([]);
+    const [location, setLocation] = useState<string>(defaultLocation);
+    const [causeOfDeath, setCauseOfDeath] = useState<string>(defaultCauseOfDeath);
+    const [year, setYear] = useState<string>(defaultYear);
+
+    
 
     const handleClickOutside = (event: MouseEvent) => {
         event.preventDefault();
@@ -81,25 +94,11 @@ export const Graph: React.FC<graphProps> = ({height}) => {
         }
     };
 
-    const getData = async (newLocation?: string, newYear?: string) => {
+    const getData = async (newLocation: string, newYear: string, causeOfDeath: string) => {
         setLoading(true);
         if (!newLocation) { newLocation = location }
         if (!newYear) { newYear = year }
-        let deathData;
-        if (newLocation === 'counties') {
-            if (newYear === 'all') {
-                deathData = await fatalService.getTotalDeathsByCounty();
-            } else {
-                deathData = await fatalService.getTotalDeathsByCountyForYear(newYear);
-            }
-
-        } else if (newLocation === 'states') {
-            if (newYear === 'all') {
-                deathData = await fatalService.getTotalDeathsByState();
-            } else {
-                deathData = await fatalService.getTotalDeathsByStateForYear(newYear);
-            }
-        }
+        let deathData = await fatalService.getData(newLocation, newYear, causeOfDeath);
         setData(deathData);
         // animateData();
         // setRange(1); // for when animating data
@@ -121,27 +120,32 @@ export const Graph: React.FC<graphProps> = ({height}) => {
     // }
 
 
-    const load = () => {
+    const load = async () => {
         if (yearsRange.length < 1) {
             fatalService.getYearsRange().then(yearsRange => {
                 yearsRange = yearsRange.map(year => year.toString());
-                setYearsRange(['all', ...yearsRange]);
+                setYearsRange(yearsRange);
             });
         }
+        const causesOfDeath = await fatalService.getCausesOfDeath();
+        setCausesOfDeath(causesOfDeath);
     }
 
     const selectLocation = async (newLocation: string) => {
         await setLocation(newLocation);
         setGeoUrl(getGeoUrl(newLocation));
-        await getData(newLocation);
+        await getData(newLocation, year, causeOfDeath);
     }
 
     const selectYear = async (newYear: string) => {
         await setYear(newYear);
-        await getData(location, newYear);
+        await getData(location, newYear, causeOfDeath);
     }
 
-
+    const selectCauseOfDeath = async (newCause: string) => {
+        await setCauseOfDeath(newCause);
+        await getData(location, year, causeOfDeath)
+    }
 
     const getColorScale = (range: number) => {
         let colorScale = scaleQuantile()
@@ -179,7 +183,7 @@ export const Graph: React.FC<graphProps> = ({height}) => {
 
     useEffect(() => {
         if (data && Object.keys(data).length < 1) {
-            getData(location);
+            getData(location, year, causeOfDeath);
             load();
         }
         document.addEventListener("click", handleClickOutside);
@@ -241,6 +245,16 @@ export const Graph: React.FC<graphProps> = ({height}) => {
                             label="Region type" // location
                             setSelected={selectLocation}
                             selected={location}
+                            setDropdownOpen={setDropdownOpen}
+                            dropdownOpen={dropdownOpen}
+                            height={height}
+                        />
+                        <Dropdown
+                            listRef={causeOfDeathRef}
+                            choices={causesOfDeath}
+                            label="Causes of Death" // location
+                            setSelected={selectCauseOfDeath}
+                            selected={causeOfDeath}
                             setDropdownOpen={setDropdownOpen}
                             dropdownOpen={dropdownOpen}
                             height={height}

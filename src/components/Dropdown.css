@@ -65,6 +65,7 @@ p { font-size: 1.2em; font-weight: normal; line-height: 1.35em; color: #343434; 
   -o-transition: all 0.15s linear;
   transition: all 0.15s linear;
   user-select: none;
+  z-index: 2;
 }
 
 /* #dropdown:hover { color: #898989; } */

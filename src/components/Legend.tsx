@@ -12,7 +12,6 @@ const style: any = {
   legendRow: {
     display: 'flex',
     width: '100%',
-    backgroundColor: 'white'
   },
   colorSquare: {
     width: '1rem',
@@ -28,10 +27,11 @@ const style: any = {
   legendCard: {
     display: 'flex',
     flexDirection: 'column',
-    backgroundColor: 'white',
+    backgroundColor: 'lightgray',
     borderRadius: '.25rem',
     padding: '.5rem',
-    margin: '.5rem'
+    margin: '.5rem',
+    opacity: '.9'
   }
 }
 
