@@ -63,19 +63,29 @@ export const Graph: React.FC<graphProps> = ({ height, loading, setLoading }) => 
     const defaultLocation = 'counties';
     const defaultYear = 'all';
     const defaultCauseOfDeath = 'all';
+    const defaultDependentVariable = 'risk';
     const center: Point = [-96, 38];
+    // legend variables
+    const titles: any = {
+        deaths: 'Number of deaths',
+        risk: 'Times more likely blacks are to be killed than whites.'
+    };
+    const labels: any = {
+        deaths: 'deaths',
+        risk: 'x'
+    }
 
     // state
 
     const [dropdownOpen, setDropdownOpen] = useState('');
     const [data, setData] = useState<any>({});
-    const [ratioData, setRatioData] = useState<any>({});
     const [geoUrl, setGeoUrl] = useState<string>(getGeoUrl(defaultLocation));
     const [yearsRange, setYearsRange] = useState<string[]>([]);
     const [causesOfDeath, setCausesOfDeath] = useState<string[]>([]);
     const [location, setLocation] = useState<string>(defaultLocation);
     const [causeOfDeath, setCauseOfDeath] = useState<string>(defaultCauseOfDeath);
     const [year, setYear] = useState<string>(defaultYear);
+    const [dependentVariable, setDependentVariable] = useState<string>(defaultDependentVariable)
     const [position, setPosition] = useState<Position>({ coordinates: center, zoom: 1 });
 
 
@@ -99,20 +109,15 @@ export const Graph: React.FC<graphProps> = ({ height, loading, setLoading }) => 
         }
     };
 
-    const getData = async (newLocation: string, newYear: string, causeOfDeath: string) => {
+    const getData = async (newLocation: string, newYear: string, causeOfDeath: string, dependentVariable: string) => {
         setLoading(true);
         if (!newLocation) { newLocation = location }
         if (!newYear) { newYear = year }
-        let deathData = await fatalService.getData(newLocation, newYear, causeOfDeath);
+        let deathData = await fatalService.getData(newLocation, newYear, causeOfDeath, dependentVariable);
         setData(deathData);
         // animateData();
         // setRange(1); // for when animating data
-
-        const riskData = await fatalService.getBlackToWhiteRiskData(location, year, causeOfDeath);
-        setRatioData(riskData);
-        await sleep(200);
         setLoading(false);
-
     }
 
     function getGeoUrl(newLocation?: string) {
@@ -144,17 +149,17 @@ export const Graph: React.FC<graphProps> = ({ height, loading, setLoading }) => 
     const selectLocation = async (newLocation: string) => {
         await setLocation(newLocation);
         setGeoUrl(getGeoUrl(newLocation));
-        await getData(newLocation, year, causeOfDeath);
+        await getData(newLocation, year, causeOfDeath, dependentVariable);
     }
 
     const selectYear = async (newYear: string) => {
         await setYear(newYear);
-        await getData(location, newYear, causeOfDeath);
+        await getData(location, newYear, causeOfDeath, dependentVariable);
     }
 
     const selectCauseOfDeath = async (newCause: string) => {
         await setCauseOfDeath(newCause);
-        await getData(location, year, causeOfDeath)
+        await getData(location, year, causeOfDeath, dependentVariable);
     }
 
 
@@ -230,13 +235,13 @@ export const Graph: React.FC<graphProps> = ({ height, loading, setLoading }) => 
 
     const getRange = () => {
         const quantiles = colorScale.quantiles().map(x => Math.round(x).toString());
-        quantiles.push('> ' + quantiles[quantiles.length - 1]);
+        quantiles.push('more than ' + quantiles[quantiles.length - 1]);
         return quantiles;
     }
 
     useEffect(() => {
         if (data && Object.keys(data).length < 1 && !loading) {
-            getData(location, year, causeOfDeath);
+            getData(location, year, causeOfDeath, dependentVariable);
             load();
         }
         if (loading === false) {
@@ -289,8 +294,11 @@ export const Graph: React.FC<graphProps> = ({ height, loading, setLoading }) => 
                 </ZoomableGroup>
             </ComposableMap>
 
+            {/*TODO: move to component */}
             <div className="controls">
-                <button onClick={handleZoomIn}>
+                <button onClick={handleZoomIn}
+                    className="zoom-button"
+                >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
@@ -303,7 +311,10 @@ export const Graph: React.FC<graphProps> = ({ height, loading, setLoading }) => 
                         <line x1="5" y1="12" x2="19" y2="12" />
                     </svg>
                 </button>
-                <button onClick={handleZoomOut}>
+                <button onClick={handleZoomOut}
+                    className="zoom-button"
+
+                >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="24"
@@ -321,7 +332,8 @@ export const Graph: React.FC<graphProps> = ({ height, loading, setLoading }) => 
         <Legend
             colorMap={colorMap}
             colorScaleQuantiles={getRange()}
-            label={'deaths'}
+            label={labels[dependentVariable]}
+            title={titles[dependentVariable]}
         />
     </div>
 

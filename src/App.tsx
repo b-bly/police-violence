@@ -44,9 +44,9 @@ export default class App extends Component<AppProps, AppState> {
     }
     render() {
         const backgroundTextStyle = { 
-            height: this.state.height / 1.3, 
-            width: this.state.width - 143,
-            fontSize: this.state.width /10
+            height: this.state.width / 1.6, 
+            width: this.state.width - 200, // 200 = max width of legend
+            fontSize: this.state.width /11
          }
         return (
             <div>

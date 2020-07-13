@@ -94,7 +94,8 @@ class FatalService {
     }
   }
 
-  async getData(location: string, year: string, causeOfDeath: string): Promise<DeathData> {
+  async getData(location: string, year: string, causeOfDeath: string, dependentVariable: string): Promise<DeathData> {
+    if (dependentVariable === 'risk') { return await this.getBlackToWhiteRiskData(location, year, causeOfDeath)}
     return await this.getDeathsByLocation(location, year, causeOfDeath);
   }
 
@@ -129,14 +130,20 @@ class FatalService {
     let blackDeathData: any[] = fatalEncountersData.filter((record: any) => record["Subject's race"] === 'African-American/Black');
     whiteDeathData = this.aggregateByLocation(location, whiteDeathData);
     blackDeathData = this.aggregateByLocation(location, blackDeathData);
-    let whiteDeathDataObj = this.countDeaths(whiteDeathData);
-    let blackDeathDataObj = this.countDeaths(blackDeathData);
+    let whiteDeathDataObj: any = this.countDeaths(whiteDeathData);
+    let blackDeathDataObj: any = this.countDeaths(blackDeathData);
     const blackToWhiteDeathRatios: any = {};
     for (let locationId in whiteDeathDataObj) {
       if (blackDeathDataObj[locationId]) {
         // calc black : white death ratio in police encounters
         // TODO: replace locationId with FIPS in censusdata
         const ratio = blackDeathDataObj[locationId]/whiteDeathDataObj[locationId];
+        if (whiteDeathDataObj[locationId] < 5) {
+          // console.log(`black deaths for ${locationId}`)
+          // console.log(blackDeathDataObj[locationId]);
+          // console.log('white deaths')
+          // console.log(whiteDeathDataObj[locationId]);
+        }
         blackToWhiteDeathRatios[locationId] = ratio;
       }
     }
@@ -157,9 +164,25 @@ class FatalService {
       const record = blackToWhiteRiskData.find(record => record.county === locationId);
       if (record) {
         // deaths ratio / demo ratio
-        // TODO: This is a mock!  Get data
         const deathsRatio = blackToWhiteDeathRatios[locationId];
-        riskData[locationId] = deathsRatio / record.blackToWhiteRatio;
+        const risk = deathsRatio / record.blackToWhiteRatio;
+        if (risk > 14) { 
+          console.log('***********************')
+          console.log(`black deaths for ${locationId}`)
+          console.log(blackDeathDataObj[locationId]);
+          console.log('white deaths')
+          console.log(whiteDeathDataObj[locationId]);
+          console.log('black to white ratio');
+          console.log(record.blackToWhiteRatio);
+          
+
+          // console.log('deathsRatio')
+          // console.log(deathsRatio);
+          // console.log('blackToWhiteRatio');
+          
+          // console.log(record.blackToWhiteRatio);
+        }
+        riskData[locationId] = risk;
       }
     }
     return riskData;

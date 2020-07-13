@@ -7,7 +7,8 @@ const style: any = {
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
-    margin: 'auto'
+    margin: 'auto',
+    maxWidth: '210px'
   },
   legendRow: {
     display: 'flex',
@@ -32,23 +33,28 @@ const style: any = {
     padding: '.5rem',
     margin: '.5rem',
     opacity: '.9'
+  },
+  title: {
+    marginTop: '0px'
   }
 }
 
 interface LegendProps {
   colorMap: string[],
   colorScaleQuantiles: any,
-  label: string
+  label: string,
+  title: string
 }
 
-export const Legend: React.FC<LegendProps> = ({ colorMap, colorScaleQuantiles, label }) => {
+export const Legend: React.FC<LegendProps> = ({ colorMap, colorScaleQuantiles, label, title }) => {
   return (
     <div style={style.legendContainer}>
       <div style={style.legendCard}>
+        <h4 style={style.title}>{title}</h4>
         {colorMap.map((color, i) =>
           <div style={style.legendRow} key={i.toString()}>
             <div style={{ ...style.colorSquare, backgroundColor: color }} ></div>
-        {colorScaleQuantiles && <div style={style.legendLabel}>{colorScaleQuantiles[i]} {label}</div> }
+        {colorScaleQuantiles && <div style={style.legendLabel}>{i === 0 ? "less than " : ""}{colorScaleQuantiles[i]} {label}</div> }
           </div>
         )}
       </div>

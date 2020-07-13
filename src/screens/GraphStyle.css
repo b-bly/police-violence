@@ -10,3 +10,8 @@
   justify-content: center;
   margin-top: 200px;
 }
+
+.zoom-button {
+  z-index: 1;
+  position: relative;
+}

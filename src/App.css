@@ -30,13 +30,13 @@
 
 .background-text {
   font-family: Verdana, Geneva, Tahoma, sans-serif;
-  font-size: 100px;
   color: white;
   position: absolute;
   opacity: .1;
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 0;
 }
 
 @keyframes App-logo-spin {
