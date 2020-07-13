@@ -1,17 +1,28 @@
-export const csvToJSON = (csv: any) => {
-  const lines = csv.split("\n");
-  const result = [];
-  const headers = lines[0].split(",");
+import { csv } from 'd3-fetch';
 
-  for (var i = 1; i < lines.length; i++) {
+// export const csvToJSON = (csv: any) => {
+//   const lines = csv.split("\n");
+//   const result = [];
+//   const headers = lines[0].split(",");
 
-    const obj: any = {};
-    const currentline = lines[i].split(",");
+//   for (var i = 1; i < lines.length; i++) {
 
-    for (var j = 0; j < headers.length; j++) {
-      obj[headers[j]] = currentline[j];
-    }
-    result.push(obj);
+//     const obj: any = {};
+//     const currentline = lines[i].split(",");
+
+//     for (var j = 0; j < headers.length; j++) {
+//       obj[headers[j]] = currentline[j];
+//     }
+//     result.push(obj);
+//   }
+//   return result;
+// }
+
+export const getJsonFromCsv = async  (url: string, cb?: Function): Promise<any> => {
+  try {
+    return await csv(url, (data) => cb ? cb(data) : data);
+  } catch (e) {
+    return e;
   }
 }
 

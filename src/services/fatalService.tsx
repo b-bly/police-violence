@@ -1,8 +1,8 @@
-import { csv } from 'd3-fetch';
-import { formatFips, toTitleCase } from '../utility';
+import { formatFips, toTitleCase, getJsonFromCsv } from '../utility';
 import _ from 'lodash';
 import allStates from "../states.json";
 import { sleep } from '../utility';
+import censusService from './censusService';
 
 // type columnHeading = "counties" | "states" | "causeOfDeath" | "date";
 // type ColumnHeadings = {
@@ -34,18 +34,10 @@ class FatalService {
     this.loadDataIfNotLoaded();
   }
 
-  async getJsonFromCsv(url: string, cb?: Function): Promise<any> {
-    try {
-      return await csv(url, (data) => cb ? cb(data) : data);
-    } catch (e) {
-      return e;
-    }
-  }
-
   async getCountyFips() {
     if (this.counties.length < 1) {
       const url = "./data/county_fips.csv";
-      let counties = await this.getJsonFromCsv(url);
+      let counties = await getJsonFromCsv(url);
       counties = counties.map((record: any) => {
         record.FIPS = formatFips(record.FIPS);
         return record;
@@ -56,7 +48,7 @@ class FatalService {
   }
 
   async loadFatalEncountersData(): Promise<void> {
-    this.fatalEncountersData = await this.getJsonFromCsv("./data/fatal_encounters.csv");
+    this.fatalEncountersData = await getJsonFromCsv("./data/fatal_encounters.csv");
   }
 
   async getFatalEncountersData() {
@@ -78,8 +70,8 @@ class FatalService {
     return ['all', ...years];
   }
 
-  formatData(deaths: any[]): DeathData {
-    const data = _.groupBy(deaths, 'geoId');
+  countDeaths(records: any[]): DeathData {
+    const data = _.groupBy(records, 'geoId');
     const deathData: any = {};
     for (let geo in data) {
       deathData[geo] = data[geo].length;
@@ -106,34 +98,94 @@ class FatalService {
     return await this.getDeathsByLocation(location, year, causeOfDeath);
   }
 
-  async getDeathsByLocation(location: string, year: string, causeOfDeath: string, fatalEncountersData?: any[]) {
+  async getDeathsByLocation(location: string, year: string, causeOfDeath: string) {
     await this.loadDataIfNotLoaded();
-    if (!fatalEncountersData) { fatalEncountersData = this.fatalEncountersData }
+    let fatalEncountersData = this.fatalEncountersData;
     if (year !== 'all') {
       fatalEncountersData = await this.filterDataForYear(year);
     }
     if (causeOfDeath !== 'all') {
       fatalEncountersData = await this.filterDataForCauseOfDeath(causeOfDeath);
     }
-    const deathData = fatalEncountersData.map((record: any) => {
+    const deathData = this.aggregateByLocation(location, fatalEncountersData);
+    const result = this.countDeaths(deathData);
+    return result;
+  }
+
+  async getBlackToWhiteRiskData(location: string, year: string, causeOfDeath: string) {
+    await this.loadDataIfNotLoaded();
+    await censusService.loadDataIfNotLoaded();
+    let fatalEncountersData = this.fatalEncountersData;
+    if (year !== 'all') {
+      fatalEncountersData = await this.filterDataForYear(year);
+    }
+    if (causeOfDeath !== 'all') {
+      fatalEncountersData = await this.filterDataForCauseOfDeath(causeOfDeath);
+    }
+    // const deathData = this.aggregateByLocation(location, fatalEncountersData);
+
+    // filter by race
+    let whiteDeathData: any[] = fatalEncountersData.filter((record: any) => record["Subject's race"] === 'European-American/White');
+    let blackDeathData: any[] = fatalEncountersData.filter((record: any) => record["Subject's race"] === 'African-American/Black');
+    whiteDeathData = this.aggregateByLocation(location, whiteDeathData);
+    blackDeathData = this.aggregateByLocation(location, blackDeathData);
+    let whiteDeathDataObj = this.countDeaths(whiteDeathData);
+    let blackDeathDataObj = this.countDeaths(blackDeathData);
+    const blackToWhiteDeathRatios: any = {};
+    for (let locationId in whiteDeathDataObj) {
+      if (blackDeathDataObj[locationId]) {
+        // calc black : white death ratio in police encounters
+        // TODO: replace locationId with FIPS in censusdata
+        const ratio = blackDeathDataObj[locationId]/whiteDeathDataObj[locationId];
+        blackToWhiteDeathRatios[locationId] = ratio;
+      }
+    }
+    let blackToWhiteRiskData: any[] = []
+    if (location.toLowerCase() === 'counties') {
+      blackToWhiteRiskData = censusService.raceDataByCounty; // await censusService.getRaceDataByCounty();
+
+    } else if (location.toLowerCase() === 'states') {
+      blackToWhiteRiskData = censusService.raceDataByState; // await censusService.getRaceDataByState();
+    } else {
+      throw new Error('Invalid location.');
+    }
+
+    // calculate black : white death ratio, not total deaths 
+
+    const riskData: any = {};
+    for (let locationId in blackToWhiteDeathRatios) {
+      const record = blackToWhiteRiskData.find(record => record.county === locationId);
+      if (record) {
+        // deaths ratio / demo ratio
+        // TODO: This is a mock!  Get data
+        const deathsRatio = blackToWhiteDeathRatios[locationId];
+        riskData[locationId] = deathsRatio / record.blackToWhiteRatio;
+      }
+    }
+    return riskData;
+  }
+
+  aggregateByLocation(location: string, fatalEncountersData: any[]) {
+    return fatalEncountersData.map((record: any) => {
       let geoId: string = 'undefined';
-      if (location === 'counties') {
+      if (location.toLowerCase() === 'counties') {
         geoId = this.getCountyFipsId(record);
-      } else {
+      } else if (location.toLowerCase() === 'states') {
         // state
         geoId = this.getStateId(record);
+      } else {
+        throw new Error('Invalid location');
       }
       return {
         geoId: geoId
       };
     });
-    return this.formatData(deathData);
   }
 
   getCountyFipsId(record: any) {
     const county = toTitleCase(record[columnHeadings.counties]);
     const fipsRecord = this.counties.find((x: any) => x.Name === county);
-    return  fipsRecord ? fipsRecord.FIPS : county;
+    return fipsRecord ? fipsRecord.FIPS : county;
   }
 
   getStateId(record: any) {

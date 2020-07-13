@@ -1,14 +1,22 @@
+// 3rd party
 import { scaleQuantile } from 'd3-scale';
 import _ from 'lodash';
 import React, { useEffect, useState, Fragment } from 'react';
 import { ComposableMap, Geographies, Geography, ZoomableGroup, Point } from 'react-simple-maps';
-import FatalService from '../services/fatalService';
-import { Dropdown } from '../components/Dropdown';
-import './GraphStyle.css';
-import { Legend } from '../components/Legend';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
+
+// services
+import FatalService from '../services/fatalService';
+import CensusService from '../services/censusService';
+
+// components
+import { Dropdown } from '../components/Dropdown';
+import { Legend } from '../components/Legend';
+// style
+import './GraphStyle.css';
+// utility
 import { sleep } from '../utility';
 
 library.add(faSpinner);
@@ -29,31 +37,22 @@ const colorMap = ["rgb(227,108,236)", "rgb(198,98,217)", "rgb(170,89,198)", "rgb
 
 const maxRange = colorMap.length;
 
-const style = {
-    flexRow: {
-        display: 'flex',
-        width: '100%',
-        height: '100%'
-    },
-    block: {
-        display: 'block',
-        width: '100%'
-    }
-}
-
 const locations = ['states', 'counties'];
 
 interface graphProps {
     width: number,
-    height: number
+    height: number,
+    loading: boolean,
+    setLoading: Function
 }
 interface Position {
     coordinates: Point,
     zoom: number
 }
 
-export const Graph: React.FC<graphProps> = ({ height }) => {
+export const Graph: React.FC<graphProps> = ({ height, loading, setLoading }) => {
     const fatalService = FatalService;
+    const censusService = CensusService;
 
     // variables
 
@@ -61,16 +60,16 @@ export const Graph: React.FC<graphProps> = ({ height }) => {
     const yearsRef: React.RefObject<HTMLUListElement> = React.createRef();
     const causeOfDeathRef: React.RefObject<HTMLUListElement> = React.createRef();
     const dropdownRefs = [locationRef, yearsRef, causeOfDeathRef];
-    const defaultLocation = 'states';
+    const defaultLocation = 'counties';
     const defaultYear = 'all';
     const defaultCauseOfDeath = 'all';
-    const center: Point = [-96,38];
+    const center: Point = [-96, 38];
 
     // state
 
     const [dropdownOpen, setDropdownOpen] = useState('');
-    const [loading, setLoading] = useState(true);
     const [data, setData] = useState<any>({});
+    const [ratioData, setRatioData] = useState<any>({});
     const [geoUrl, setGeoUrl] = useState<string>(getGeoUrl(defaultLocation));
     const [yearsRange, setYearsRange] = useState<string[]>([]);
     const [causesOfDeath, setCausesOfDeath] = useState<string[]>([]);
@@ -108,7 +107,12 @@ export const Graph: React.FC<graphProps> = ({ height }) => {
         setData(deathData);
         // animateData();
         // setRange(1); // for when animating data
+
+        const riskData = await fatalService.getBlackToWhiteRiskData(location, year, causeOfDeath);
+        setRatioData(riskData);
+        await sleep(200);
         setLoading(false);
+
     }
 
     function getGeoUrl(newLocation?: string) {
@@ -152,7 +156,7 @@ export const Graph: React.FC<graphProps> = ({ height }) => {
         await setCauseOfDeath(newCause);
         await getData(location, year, causeOfDeath)
     }
-    
+
 
 
     const getColorScale = (range: number) => {
@@ -164,23 +168,23 @@ export const Graph: React.FC<graphProps> = ({ height }) => {
         return colorScale;
     }
 
-    const validateCoordinates = (coordinates: Point) =>{
+    const validateCoordinates = (coordinates: Point) => {
         // ew < increases, sn ^ increases
         const south = -169;
         const north = -77;
         const east = 40;
         const west = 46;
 
-        if (coordinates[0] < south) { coordinates[0] = south}
+        if (coordinates[0] < south) { coordinates[0] = south }
         if (coordinates[0] > north) { coordinates[0] = north }
-        if (coordinates[1] < east) { coordinates[1] = east}
-        if (coordinates[1] > west) { coordinates[1] = west}
+        if (coordinates[1] < east) { coordinates[1] = east }
+        if (coordinates[1] > west) { coordinates[1] = west }
         return coordinates;
     }
 
     async function handleZoomAsync(zoom: number) {
         let coordinates = validateCoordinates(position.coordinates);
-        setPosition({...position, coordinates });
+        setPosition({ ...position, coordinates });
 
         // sleep is because graph errors if state is set with zoom and coordinates at the same time,
         // even if coordinates are valid
@@ -202,8 +206,6 @@ export const Graph: React.FC<graphProps> = ({ height }) => {
     }
 
     function handleMoveEnd(position: any) {
-        console.log(position)
-
         setPosition(position);
     }
 
@@ -233,11 +235,13 @@ export const Graph: React.FC<graphProps> = ({ height }) => {
     }
 
     useEffect(() => {
-        if (data && Object.keys(data).length < 1) {
+        if (data && Object.keys(data).length < 1 && !loading) {
             getData(location, year, causeOfDeath);
             load();
         }
-        document.addEventListener("click", handleClickOutside);
+        if (loading === false) {
+            document.addEventListener("click", handleClickOutside);
+        }
         return function cleanup() {
             // remove event listener
             document.removeEventListener("click", handleClickOutside);
@@ -248,6 +252,18 @@ export const Graph: React.FC<graphProps> = ({ height }) => {
         // https://www.nrcs.usda.gov/wps/portal/nrcs/detail/national/home/?cid=nrcs143_013697
     });
 
+    const style = {
+        flexRow: {
+            display: 'flex',
+            width: '100%',
+            height: '100%'
+        },
+        block: {
+            display: 'block',
+            width: '100%',
+            maxHeight: height
+        }
+    }
     const graph = <div style={style.flexRow}>
         <div style={style.block}>
             <ComposableMap projection="geoAlbersUsa">
@@ -307,8 +323,8 @@ export const Graph: React.FC<graphProps> = ({ height }) => {
             colorScaleQuantiles={getRange()}
             label={'deaths'}
         />
-
     </div>
+
     return (
         <div>
             {!loading ?
@@ -361,6 +377,8 @@ export const Graph: React.FC<graphProps> = ({ height }) => {
 }
 
 // fatal encounters data:
+// https://docs.google.com/spreadsheets/d/1dKmaV_JiWcG8XBoRgP8b4e9Eopkpgt7FL7nyspvzAsE/edit#gid=0
+// download:
 // https://docs.google.com/spreadsheets/d/1dKmaV_JiWcG8XBoRgP8b4e9Eopkpgt7FL7nyspvzAsE/export?format=csv&id=1dKmaV_JiWcG8XBoRgP8b4e9Eopkpgt7FL7nyspvzAsE&gid=0
 // blocked by cors
 // possible workaround with jsonp:
@@ -378,3 +396,31 @@ export const Graph: React.FC<graphProps> = ({ height }) => {
 // Date of injury resulting in death (month/day/year)
 // Cause of death
 // Date (Year)
+
+// census api with race data
+// https://www.census.gov/data/developers/data-sets/decennial-census.html
+// file download https://www.census.gov/data/tables/time-series/demo/popest/2010s-counties-detail.html
+
+
+// Total black
+// H016B001
+
+// age and sex
+// https://data.census.gov/api/access/data/table?g=0100000US&id=ACSST1Y2018.S0101
+
+// total white
+// B01001A_001E 
+// B02001_008MA (use this)
+
+// total black
+// B01001B_001E
+// B02001_003E (use)
+
+// 2017
+
+// counties - race
+// api:  https://data.census.gov/api/access/data/table?g=0100000US.050000&id=ACSDT1Y2018.B02001
+// table: https://data.census.gov/cedsci/table?q=race&tid=ACSDT1Y2018.B02001&vintage=2018&hidePreview=true&g=0100000US.050000
+
+// counties - black
+// https://data.census.gov/api/access/data/table?t=Black%20or%20African%20American&g=0100000US.050000&y=2018&id=ACSDT1Y2018.B01001B
