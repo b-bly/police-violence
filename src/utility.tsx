@@ -49,3 +49,12 @@ export function wait(ms: number) {
 export function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+export function calculateMapHeight(height: number) {
+  return height - 195;
+}
+
+export function calculateMapWidth(height: number) {
+  return height * 1.1;
+
+}

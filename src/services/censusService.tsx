@@ -36,7 +36,12 @@ class CensusService {
 
   async loadDataIfNotLoaded() {
     if (this.raceDataByCounty.length < 1) {
+      try {
       this.raceDataByCounty = await this.loadRaceDataByCounty();
+      } catch (e) {
+        console.log(e);
+        this.raceDataByCounty = [];
+      }
     } 
   }
 }

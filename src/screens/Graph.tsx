@@ -18,19 +18,9 @@ import { Legend } from '../components/Legend';
 import './GraphStyle.css';
 // utility
 import { sleep } from '../utility';
+import { calculateMapHeight, calculateMapWidth } from '../utility';
 
 library.add(faSpinner);
-// const colorMap = [
-//     "#ffedea",
-//     "#ffcec5",
-//     "#ffad9f",
-//     "#ff8a75",
-//     "#ff5533",
-//     "#e2492d",
-//     "#be3d26",
-//     "#9a311f",
-//     "#782618"
-// ];
 
 const colorMap = ["rgb(227,108,236)", "rgb(198,98,217)", "rgb(170,89,198)", "rgb(142,79,179)",
     "rgb(113,70,160)", "rgb(85,60,141)", "rgb(57,51,122)", "rgb(28,41,103)", "rgb(0,32,84)"].reverse();
@@ -50,7 +40,7 @@ interface Position {
     zoom: number
 }
 
-export const Graph: React.FC<graphProps> = ({ height, loading, setLoading }) => {
+export const Graph: React.FC<graphProps> = ({ height, width, loading, setLoading }) => {
     const fatalService = FatalService;
     const censusService = CensusService;
 
@@ -59,12 +49,16 @@ export const Graph: React.FC<graphProps> = ({ height, loading, setLoading }) => 
     const locationRef: React.RefObject<HTMLUListElement> = React.createRef();
     const yearsRef: React.RefObject<HTMLUListElement> = React.createRef();
     const causeOfDeathRef: React.RefObject<HTMLUListElement> = React.createRef();
-    const dropdownRefs = [locationRef, yearsRef, causeOfDeathRef];
+    const dependentRef: React.RefObject<HTMLUListElement> = React.createRef();
+    const dropdownRefs = [locationRef, yearsRef, causeOfDeathRef, dependentRef];
+    const dependentRange = ['risk', 'deaths']
     const defaultLocation = 'counties';
     const defaultYear = 'all';
     const defaultCauseOfDeath = 'all';
     const defaultDependentVariable = 'risk';
     const center: Point = [-96, 38];
+
+
     // legend variables
     const titles: any = {
         deaths: 'Number of deaths',
@@ -144,6 +138,11 @@ export const Graph: React.FC<graphProps> = ({ height, loading, setLoading }) => 
         }
         const causesOfDeath = await fatalService.getCausesOfDeath();
         setCausesOfDeath(causesOfDeath);
+    }
+
+    const selectDependent = async (newDependent: string) => {
+        await setDependentVariable(newDependent);
+        await getData(location, year, causeOfDeath, dependentVariable);
     }
 
     const selectLocation = async (newLocation: string) => {
@@ -258,91 +257,102 @@ export const Graph: React.FC<graphProps> = ({ height, loading, setLoading }) => 
     });
 
     const style = {
-        flexRow: {
-            display: 'flex',
-            width: '100%',
-            height: '100%'
-        },
         block: {
             display: 'block',
             width: '100%',
-            maxHeight: height
-        }
+            maxHeight: calculateMapHeight(height) + "px",
+            maxWidth: calculateMapWidth(height) + "px"
+        },
+
     }
-    const graph = <div style={style.flexRow}>
-        <div style={style.block}>
-            <ComposableMap projection="geoAlbersUsa">
-                <ZoomableGroup
-                    zoom={position.zoom}
-                    center={position.coordinates}
-                    onMoveEnd={handleMoveEnd}
-                >
-                    <Geographies geography={geoUrl}>
-                        {({ geographies }) =>
-                            geographies.map((geo: any) => {
-                                const cur = data[geo.id]; // id == fips county
-                                return (
-                                    <Geography
-                                        key={geo.rsmKey}
-                                        geography={geo}
-                                        fill={cur ? colorMap[colorScale(cur)] : "rgb(61, 61, 61)"}
-                                    />
-                                );
-                            })
-                        }
-                    </Geographies>
-                </ZoomableGroup>
-            </ComposableMap>
 
-            {/*TODO: move to component */}
-            <div className="controls">
-                <button onClick={handleZoomIn}
-                    className="zoom-button"
+    const graph =
+        <div className="graph-container">
+            <div style={style.block}>
+                <ComposableMap
+                    projection="geoAlbersUsa"
                 >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth="3"
+                    <ZoomableGroup
+                        zoom={position.zoom}
+                        center={position.coordinates}
+                        onMoveEnd={handleMoveEnd}
                     >
-                        <line x1="12" y1="5" x2="12" y2="19" />
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                    </svg>
-                </button>
-                <button onClick={handleZoomOut}
-                    className="zoom-button"
+                        <Geographies geography={geoUrl}>
+                            {({ geographies }) =>
+                                geographies.map((geo: any) => {
+                                    const cur = data[geo.id]; // id == fips county
+                                    return (
+                                        <Geography
+                                            key={geo.rsmKey}
+                                            geography={geo}
+                                            fill={cur ? colorMap[colorScale(cur)] : "rgb(61, 61, 61)"}
+                                        />
+                                    );
+                                })
+                            }
+                        </Geographies>
+                    </ZoomableGroup>
+                </ComposableMap>
 
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth="3"
+                {/*TODO: move to component */}
+                <div className="controls">
+                    <button onClick={handleZoomIn}
+                        className="zoom-button"
                     >
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                    </svg>
-                </button>
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                        >
+                            <line x1="12" y1="5" x2="12" y2="19" />
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
+                    </button>
+                    <button onClick={handleZoomOut}
+                        className="zoom-button"
+
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth="3"
+                        >
+                            <line x1="5" y1="12" x2="19" y2="12" />
+                        </svg>
+                    </button>
+                </div>
+
             </div>
-
+            <Legend
+                colorMap={colorMap}
+                colorScaleQuantiles={getRange()}
+                label={labels[dependentVariable]}
+                title={titles[dependentVariable]}
+            />
         </div>
-        <Legend
-            colorMap={colorMap}
-            colorScaleQuantiles={getRange()}
-            label={labels[dependentVariable]}
-            title={titles[dependentVariable]}
-        />
-    </div>
 
     return (
         <div>
             {!loading ?
                 <Fragment>
 
-                    < div className="flex-row">
+                    < div className="flex-row dropdown-container">
+                        <Dropdown
+                            listRef={dependentRef}
+                            choices={dependentRange}
+                            label="Map Type"
+                            setSelected={selectDependent}
+                            selected={dependentVariable}
+                            setDropdownOpen={setDropdownOpen}
+                            dropdownOpen={dropdownOpen}
+                            height={height}
+                        />
                         <Dropdown
                             listRef={yearsRef}
                             choices={yearsRange}

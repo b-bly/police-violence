@@ -1,15 +1,8 @@
 import React from 'react';
+import './Legend.css';
 
 const style: any = {
-  legendContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    margin: 'auto',
-    maxWidth: '210px'
-  },
+
   legendRow: {
     display: 'flex',
     width: '100%',
@@ -25,15 +18,6 @@ const style: any = {
     padding: '.25rem',
     whiteSpace: 'nowrap'
   },
-  legendCard: {
-    display: 'flex',
-    flexDirection: 'column',
-    backgroundColor: 'lightgray',
-    borderRadius: '.25rem',
-    padding: '.5rem',
-    margin: '.5rem',
-    opacity: '.9'
-  },
   title: {
     marginTop: '0px'
   }
@@ -48,8 +32,8 @@ interface LegendProps {
 
 export const Legend: React.FC<LegendProps> = ({ colorMap, colorScaleQuantiles, label, title }) => {
   return (
-    <div style={style.legendContainer}>
-      <div style={style.legendCard}>
+    <div className="legend-container">
+      <div className="legend-card">
         <h4 style={style.title}>{title}</h4>
         {colorMap.map((color, i) =>
           <div style={style.legendRow} key={i.toString()}>

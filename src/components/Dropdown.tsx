@@ -35,7 +35,7 @@ export const Dropdown: React.FC<DropdownProps> = ({ listRef, label, choices,
   }
 
   return (
-    <div>
+    <div className="dropdown-container">
       <label className="label">{label}</label>
       <div
         id="dropdown"

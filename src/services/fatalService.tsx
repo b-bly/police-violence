@@ -166,14 +166,14 @@ class FatalService {
         // deaths ratio / demo ratio
         const deathsRatio = blackToWhiteDeathRatios[locationId];
         const risk = deathsRatio / record.blackToWhiteRatio;
-        if (risk > 14) { 
-          console.log('***********************')
-          console.log(`black deaths for ${locationId}`)
-          console.log(blackDeathDataObj[locationId]);
-          console.log('white deaths')
-          console.log(whiteDeathDataObj[locationId]);
-          console.log('black to white ratio');
-          console.log(record.blackToWhiteRatio);
+        // if (risk > 200) { 
+          // console.log('***********************')
+          // console.log(`black deaths for ${locationId}`)
+          // console.log(blackDeathDataObj[locationId]);
+          // console.log('white deaths')
+          // console.log(whiteDeathDataObj[locationId]);
+          // console.log('black to white ratio');
+          // console.log(record.blackToWhiteRatio);
           
 
           // console.log('deathsRatio')
@@ -181,7 +181,7 @@ class FatalService {
           // console.log('blackToWhiteRatio');
           
           // console.log(record.blackToWhiteRatio);
-        }
+        // }
         riskData[locationId] = risk;
       }
     }

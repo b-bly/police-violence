@@ -4,7 +4,6 @@ import censusService from '../services/censusService';
 const router = Router();
 
 router.get('/county', async (req: any, res: any) => {
-  console.log('get county')
   try {
     await censusService.init();
     let data: any[] = censusService.getCensusRaceDataByCounty();

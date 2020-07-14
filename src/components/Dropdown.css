@@ -40,6 +40,7 @@ p { font-size: 1.2em; font-weight: normal; line-height: 1.35em; color: #343434; 
   width: 100%;
   margin: 0 auto;
   padding-top: 35px;
+  flex-wrap: wrap;
 }
 
 /* user menu settings */
@@ -48,7 +49,7 @@ p { font-size: 1.2em; font-weight: normal; line-height: 1.35em; color: #343434; 
   display: block;
   padding: .4rem;
   width: 150px;
-  margin: .25rem auto;
+  margin: .25rem;
   position: relative;
   cursor: pointer;
   /* border-left: 4px solid #739cda; */
