@@ -6,8 +6,7 @@ const router = Router();
 router.get('/', async (req: any, res: any) => {
   try {
     await fatalService.init();
-    let data: any[] = fatalService.getFatalEncountersData();
-    console.log(data);
+    const data: any[] = fatalService.getFatalEncountersData();
     res.json(data);
   } catch (e) {
     console.log(e);

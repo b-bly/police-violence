@@ -1,7 +1,7 @@
 import csv from 'csv-parser'; // const csv = require('csv-parser');
 const fs = require('fs');
 
-export const getJsonFromCsv = async (url: string, cb?: Function): Promise<any[]> => {
+export const getJsonFromCsv = async (url: string, cb?: () => void): Promise<any[]> => {
   const data: any[] = [];
   return new Promise((resolve, reject) => {
     fs.createReadStream(url)
@@ -30,7 +30,7 @@ export const formatFips = (fips: string) => {
 export function toTitleCase(str: string) {
   return str.replace(
     /\w\S*/g,
-    function (txt) {
+    (txt) => {
       return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
     }
   );

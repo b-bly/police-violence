@@ -5,9 +5,7 @@ class CensusService {
   censusCountyData: any[] = [];
   censusStateData: any[] = [];
 
-  constructor() { }
-
-  async init(cb?: Function) {
+  async init(cb?: () => void) {
     if (this.censusCountyData.length < 1) {
       this.censusCountyData = await getCensusRaceDataByCounty();
     }
@@ -28,11 +26,12 @@ class CensusService {
     return csvObject.slice(1).map<any[]>((record: any[], i) => {
       const formattedRecord: any = {};
       if (record[blackIndex] !== null && record[whiteIndex] !== null) {
-        formattedRecord.blackToWhiteRatio = parseInt(record[blackIndex]) / parseInt(record[whiteIndex]); // black / white
+        formattedRecord.blackToWhiteRatio = parseInt(record[blackIndex], 10) / parseInt(record[whiteIndex], 10); // black / white
       } else {
-        return {};
+        const empty: any = {};
+        return empty;
       }
-      // record[15] has a county id, but it's not the fips one. 
+      // record[15] has a county id, but it's not the fips one.
       // 25 down--first part of fips?
       // state [25] + county [15] = fips
       const fips = record[25] + record[15];
@@ -49,7 +48,7 @@ class CensusService {
 
 
   // Example ratio calc
-  // demogr: 25 black  75 white  
+  // demogr: 25 black  75 white
   // deaths 66 black   33 white
   // demogr b:w ratio = 1/3
   // deaths b:w reatio = 2/1

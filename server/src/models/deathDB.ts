@@ -8,7 +8,7 @@ export default class DeathDB {
   date: Date;
 
   constructor(
-    race: string, 
+    race: string,
     county: string,
     fips: string,
     state: string,

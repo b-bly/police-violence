@@ -6,7 +6,7 @@ export const stateIds = stateIdsJson;
 
 export const getCountyFips = async () => {
   const url = path.resolve(__dirname, "county_fips.csv");
-  let counties: any[] = await getJsonFromCsv(url);
+  const counties: any[] = await getJsonFromCsv(url);
   const fips = counties.map((record: any) => {
     record.FIPS = formatFips(record.FIPS);
     return record;

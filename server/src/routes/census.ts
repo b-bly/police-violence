@@ -6,7 +6,7 @@ const router = Router();
 router.get('/county', async (req: any, res: any) => {
   try {
     await censusService.init();
-    let data: any[] = censusService.getCensusRaceDataByCountyBlackWhite();
+    const data: any[] = censusService.getCensusRaceDataByCountyBlackWhite();
     res.json(data);
   } catch (e) {
     console.log(e);
