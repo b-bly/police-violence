@@ -1,15 +1,5 @@
 import { getCensusRaceDataByCounty } from '../3rdParty/censusApi';
-
-interface ColumnHeadings {
-  [key: string]: string
-}
-
-const columnHeadings: ColumnHeadings = {
-  counties: "Location of death (county)",
-  states: "Location of death (state)",
-  causeOfDeath: "Cause of death",
-  date: "Date of injury resulting in death (month/day/year)"
-};
+import { columnHeadings } from '../constants';
 
 class CensusService {
   censusCountyData: any[] = [];
@@ -26,7 +16,6 @@ class CensusService {
 
   csvStyleJsonToKeyValueBlackWhite = (csvObject: any[]) => {
     const headers = csvObject[0];
-
     // total black
     // B02001_003E (use) index 37
 
@@ -52,7 +41,7 @@ class CensusService {
     });
   }
 
-  getCensusRaceDataByCounty = () => {
+  getCensusRaceDataByCountyBlackWhite = () => {
     let data = this.censusCountyData;
     data = this.csvStyleJsonToKeyValueBlackWhite(data);
     return data;

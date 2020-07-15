@@ -1,24 +1,8 @@
-import { formatFips, toTitleCase, getJsonFromCsv } from '../utility';
 import _ from 'lodash';
 import allStates from "../states.json";
 import { sleep } from '../utility';
 import censusService from './censusService';
-
-// type columnHeading = "counties" | "states" | "causeOfDeath" | "date";
-// type ColumnHeadings = {
-//   [heading in columnHeading]: string
-// }
-
-interface ColumnHeadings {
-  [key: string]: string
-}
-
-const columnHeadings: ColumnHeadings = {
-  counties: "Location of death (county)",
-  states: "Location of death (state)",
-  causeOfDeath: "Cause of death",
-  date: "Date of injury resulting in death (month/day/year)"
-};
+import Death from '../models/death';
 
 interface DeathData {
   [key: number]: number
@@ -26,7 +10,7 @@ interface DeathData {
 
 class FatalService {
   counties: any[] = [];
-  fatalEncountersData: any[] = [];
+  fatalEncountersData: Death[] = [];
   allStates: any[] = allStates;
   loading: boolean = false;
 
@@ -34,21 +18,31 @@ class FatalService {
     this.loadDataIfNotLoaded();
   }
 
-  async getCountyFips() {
-    if (this.counties.length < 1) {
-      const url = "./data/county_fips.csv";
-      let counties = await getJsonFromCsv(url);
-      counties = counties.map((record: any) => {
-        record.FIPS = formatFips(record.FIPS);
-        return record;
-      });
-      this.counties = counties;
-    }
-    return this.counties;
+  async get(url: string) {
+    const res = await fetch(url);
+    return await res.json();
+
   }
 
   async loadFatalEncountersData(): Promise<void> {
-    this.fatalEncountersData = await getJsonFromCsv("./data/fatal_encounters.csv");
+    try {
+      const data = await this.get('/api/fatalEncounters');
+      this.fatalEncountersData = data;
+    } catch (e) {
+      this.fatalEncountersData = [];
+      console.log(e)
+      // alert('Error getting data.');
+    }
+  }
+
+  async loadDataIfNotLoaded() {
+    if (this.loading) { await sleep(500) }
+    if (this.loading) { await sleep(500) }
+    if (this.fatalEncountersData.length < 1) {
+      this.loading = true;
+      await this.loadFatalEncountersData();
+      this.loading = false;
+    }
   }
 
   async getFatalEncountersData() {
@@ -58,14 +52,15 @@ class FatalService {
 
   async getCausesOfDeath() {
     await this.loadDataIfNotLoaded();
-    const causesOfDeath: string[] = _.uniqBy(this.fatalEncountersData, columnHeadings.causeOfDeath).map(x => String(x[columnHeadings.causeOfDeath]));
+    const causesOfDeath: string[] = _.uniqBy(this.fatalEncountersData, "causeOfDeath")
+      .map((death: Death) => death.causeOfDeath);
     return ['all', ...causesOfDeath];
   }
 
   async getYearsRange() {
     await this.loadDataIfNotLoaded();
-    const years = _.uniq(this.fatalEncountersData.map(data =>
-      new Date(data["Date of injury resulting in death (month/day/year)"]).getFullYear().toString()))
+    const years = _.uniq(this.fatalEncountersData.map((data: Death) =>
+      data.year))
       .filter(year => parseInt(year) < new Date().getFullYear());
     return ['all', ...years];
   }
@@ -79,23 +74,8 @@ class FatalService {
     return deathData;
   }
 
-  async loadDataIfNotLoaded() {
-    if (this.loading) { await sleep(500) }
-    if (this.loading) { await sleep(500) }
-    if (this.counties.length < 1) {
-      this.loading = true;
-      await this.getCountyFips();
-      this.loading = false;
-    }
-    if (this.fatalEncountersData.length < 1) {
-      this.loading = true;
-      await this.loadFatalEncountersData();
-      this.loading = false;
-    }
-  }
-
   async getData(location: string, year: string, causeOfDeath: string, dependentVariable: string): Promise<DeathData> {
-    if (dependentVariable === 'risk') { return await this.getBlackToWhiteRiskData(location, year, causeOfDeath)}
+    if (dependentVariable === 'risk') { return await this.getBlackToWhiteRiskData(location, year, causeOfDeath) }
     return await this.getDeathsByLocation(location, year, causeOfDeath);
   }
 
@@ -126,8 +106,8 @@ class FatalService {
     // const deathData = this.aggregateByLocation(location, fatalEncountersData);
 
     // filter by race
-    let whiteDeathData: any[] = fatalEncountersData.filter((record: any) => record["Subject's race"] === 'European-American/White');
-    let blackDeathData: any[] = fatalEncountersData.filter((record: any) => record["Subject's race"] === 'African-American/Black');
+    let whiteDeathData: any[] = fatalEncountersData.filter((record: any) => record.race === 'European-American/White');
+    let blackDeathData: any[] = fatalEncountersData.filter((record: any) => record.race === 'African-American/Black');
     whiteDeathData = this.aggregateByLocation(location, whiteDeathData);
     blackDeathData = this.aggregateByLocation(location, blackDeathData);
     let whiteDeathDataObj: any = this.countDeaths(whiteDeathData);
@@ -137,7 +117,7 @@ class FatalService {
       if (blackDeathDataObj[locationId]) {
         // calc black : white death ratio in police encounters
         // TODO: replace locationId with FIPS in censusdata
-        const ratio = blackDeathDataObj[locationId]/whiteDeathDataObj[locationId];
+        const ratio = blackDeathDataObj[locationId] / whiteDeathDataObj[locationId];
         if (whiteDeathDataObj[locationId] < 5) {
           // console.log(`black deaths for ${locationId}`)
           // console.log(blackDeathDataObj[locationId]);
@@ -167,20 +147,20 @@ class FatalService {
         const deathsRatio = blackToWhiteDeathRatios[locationId];
         const risk = deathsRatio / record.blackToWhiteRatio;
         // if (risk > 200) { 
-          // console.log('***********************')
-          // console.log(`black deaths for ${locationId}`)
-          // console.log(blackDeathDataObj[locationId]);
-          // console.log('white deaths')
-          // console.log(whiteDeathDataObj[locationId]);
-          // console.log('black to white ratio');
-          // console.log(record.blackToWhiteRatio);
-          
+        // console.log('***********************')
+        // console.log(`black deaths for ${locationId}`)
+        // console.log(blackDeathDataObj[locationId]);
+        // console.log('white deaths')
+        // console.log(whiteDeathDataObj[locationId]);
+        // console.log('black to white ratio');
+        // console.log(record.blackToWhiteRatio);
 
-          // console.log('deathsRatio')
-          // console.log(deathsRatio);
-          // console.log('blackToWhiteRatio');
-          
-          // console.log(record.blackToWhiteRatio);
+
+        // console.log('deathsRatio')
+        // console.log(deathsRatio);
+        // console.log('blackToWhiteRatio');
+
+        // console.log(record.blackToWhiteRatio);
         // }
         riskData[locationId] = risk;
       }
@@ -188,14 +168,14 @@ class FatalService {
     return riskData;
   }
 
-  aggregateByLocation(location: string, fatalEncountersData: any[]) {
-    return fatalEncountersData.map((record: any) => {
+  aggregateByLocation(location: string, fatalEncountersData: Death[]) {
+    return fatalEncountersData.map((record: Death) => {
       let geoId: string = 'undefined';
       if (location.toLowerCase() === 'counties') {
-        geoId = this.getCountyFipsId(record);
+        geoId = record.fips;
       } else if (location.toLowerCase() === 'states') {
         // state
-        geoId = this.getStateId(record);
+        geoId = record.stateId;
       } else {
         throw new Error('Invalid location');
       }
@@ -205,31 +185,17 @@ class FatalService {
     });
   }
 
-  getCountyFipsId(record: any) {
-    const county = toTitleCase(record[columnHeadings.counties]);
-    const fipsRecord = this.counties.find((x: any) => x.Name === county);
-    return fipsRecord ? fipsRecord.FIPS : county;
-  }
-
-  getStateId(record: any) {
-    const state: string = record[columnHeadings.states].toUpperCase();
-    const stateRecord = this.allStates.find((x: any) => x.id === state);
-    return stateRecord ? stateRecord.val : state;
-  }
-
   async filterDataForYear(year: string) {
     // await this.loadDataIfNotLoaded();
-    return this.fatalEncountersData.filter((data: any) => {
-      const d = new Date(data[columnHeadings.date]);
-      const dataYear = d.getFullYear().toString();
-      if (dataYear === '2100') return false; // fatal encounters uses a year 2100 as a spacer.  Yeah, I don't get it either.
-      return dataYear === year;
+    return this.fatalEncountersData.filter((data: Death) => {
+      if (data.year === '2100') return false; // fatal encounters uses a year 2100 as a spacer.  Yeah, I don't get it either.
+      return data.year === year;
     });
   }
 
   async filterDataForCauseOfDeath(causeOfDeath: string) {
-    return this.fatalEncountersData.filter((data: any) => {
-      return causeOfDeath === data[columnHeadings.causeOfDeath];
+    return this.fatalEncountersData.filter((data: Death) => {
+      return causeOfDeath === data.causeOfDeath;
     });
   }
 }

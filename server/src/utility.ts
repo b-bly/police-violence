@@ -1,11 +1,23 @@
-import { csv } from 'd3-fetch';
+import csv from 'csv-parser'; // const csv = require('csv-parser');
+const fs = require('fs');
 
-export const getJsonFromCsv = async  (url: string, cb?: Function): Promise<any> => {
-  try {
-    return await csv(url, (data) => cb ? cb(data) : data);
-  } catch (e) {
-    return e;
-  }
+export const getJsonFromCsv = async (url: string, cb?: Function): Promise<any[]> => {
+  const data: any[] = [];
+  return new Promise((resolve, reject) => {
+    fs.createReadStream(url)
+      .on('error', () => {
+        console.log('error');
+        reject();
+      })
+      .pipe(csv())
+      .on('data', (row: any) => {
+        data.push(row);
+      })
+      .on('end', () => {
+        console.log('CSV file successfully processed');
+        resolve(data);
+      });
+  });
 }
 
 export const formatFips = (fips: string) => {

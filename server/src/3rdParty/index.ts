@@ -1,14 +1,22 @@
-import statesJson from './states.json';
-import { getJsonFromCsv, formatFips } from '../utility';
+import stateIdsJson from './states.json';
+import { formatFips, getJsonFromCsv } from '../utility';
+const path = require('path');
 
-export const states = statesJson;
+export const stateIds = stateIdsJson;
 
 export const getCountyFips = async () => {
-  const url = "./data/county_fips.csv";
-  let counties = await getJsonFromCsv(url);
-  return counties.map((record: any) => {
+  const url = path.resolve(__dirname, "county_fips.csv");
+  let counties: any[] = await getJsonFromCsv(url);
+  const fips = counties.map((record: any) => {
     record.FIPS = formatFips(record.FIPS);
     return record;
   });
+  return fips;
+}
+
+export const loadFatalEncountersData = async (): Promise<any[]> => {
+  const url = path.resolve(__dirname, "fatal_encounters.csv");
+  const data = await getJsonFromCsv(url);
+  return data;
 }
 

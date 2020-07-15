@@ -1,16 +1,6 @@
 import { toTitleCase } from '../utility';
 import { getCountyFips } from '../3rdParty/index';
-
-interface ColumnHeadings {
-  [key: string]: string
-}
-
-const columnHeadings: ColumnHeadings = {
-  counties: "Location of death (county)",
-  states: "Location of death (state)",
-  causeOfDeath: "Cause of death",
-  date: "Date of injury resulting in death (month/day/year)"
-};
+import { columnHeadings } from '../constants';
 
 class GeoService {
   states: any[] = [];
