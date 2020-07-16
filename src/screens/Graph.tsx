@@ -141,7 +141,7 @@ export const Graph: React.FC<graphProps> = ({ height, width, loading, setLoading
 
     const selectDependent = async (newDependent: string) => {
         await setDependentVariable(newDependent);
-        await getData(location, year, causeOfDeath, dependentVariable);
+        await getData(location, year, causeOfDeath, newDependent);
     }
 
     const selectLocation = async (newLocation: string) => {

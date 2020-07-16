@@ -1,3 +1,6 @@
+import { IRaceGeo } from "../models/IRaceGeo";
+import RaceGeo from "../models/RaceGeo";
+
 class CensusService {
   raceDataByCounty: any[] = [];
   raceDataByState: any[] = [];
@@ -16,7 +19,8 @@ class CensusService {
 
   async loadRaceDataByCounty() {
     const url = '/api/census/county';
-    return await this.get(url);
+    const data: IRaceGeo[] = await this.get(url);
+    return data.map((record: IRaceGeo) => new RaceGeo(record));
   }
 
   async loadRaceDataByState() {

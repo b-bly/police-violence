@@ -75,7 +75,15 @@ class FatalService {
   }
 
   async getData(location: string, year: string, causeOfDeath: string, dependentVariable: string): Promise<DeathData> {
-    if (dependentVariable === 'risk') { return await this.getBlackToWhiteRiskData(location, year, causeOfDeath) }
+    if (dependentVariable === 'risk') {
+      try {
+        const data = await this.getBlackToWhiteRiskData(location, year, causeOfDeath);
+        return data;
+      } catch (e) {
+        console.log(e);
+        return [];
+      }
+    }
     return await this.getDeathsByLocation(location, year, causeOfDeath);
   }
 
@@ -141,11 +149,12 @@ class FatalService {
 
     const riskData: any = {};
     for (let locationId in blackToWhiteDeathRatios) {
-      const record = blackToWhiteRiskData.find(record => record.county === locationId);
+      const record = blackToWhiteRiskData.find(record => record.geoId === locationId);
       if (record) {
         // deaths ratio / demo ratio
         const deathsRatio = blackToWhiteDeathRatios[locationId];
-        const risk = deathsRatio / record.blackToWhiteRatio;
+        const BWRaceRatio = record.raceRatio;
+        const risk = deathsRatio / BWRaceRatio;  // record.blackToWhiteRatio;
         // if (risk > 200) { 
         // console.log('***********************')
         // console.log(`black deaths for ${locationId}`)
