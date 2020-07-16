@@ -1,3 +1,5 @@
+import { Point } from "react-simple-maps";
+
 export interface IColumnHeadings {
   [key: string]: string
 }
@@ -30,4 +32,9 @@ export interface IDeath {
   stateId: string,
   causeOfDeath: string,
   date: string,
+}
+
+export interface Position {
+  coordinates: Point,
+  zoom: number
 }

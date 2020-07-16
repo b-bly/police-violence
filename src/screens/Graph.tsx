@@ -2,24 +2,27 @@
 import { scaleQuantile } from 'd3-scale';
 import _ from 'lodash';
 import React, { useEffect, useState, Fragment } from 'react';
-import { ComposableMap, Geographies, Geography, ZoomableGroup, Point } from 'react-simple-maps';
+import { Point } from 'react-simple-maps';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faSpinner } from "@fortawesome/free-solid-svg-icons";
 
 // services
 import FatalService from '../services/fatalService';
-import CensusService from '../services/censusService';
 
 // components
 import { Dropdown } from '../components/Dropdown';
 import { Legend } from '../components/Legend';
+import { Controls } from '../components/Controls';
+import { Map } from '../components/Map'
+
 // style
 import './GraphStyle.css';
 // utility
 import { sleep } from '../utility';
 import { calculateMapHeight, calculateMapWidth } from '../utility';
-import { Controls } from '../components/Controls';
+
+import { Position } from '../types';
 
 library.add(faSpinner);
 
@@ -30,16 +33,12 @@ const maxRange = colorMap.length;
 
 const locations = ['states', 'counties'];
 
-interface graphProps {
+export interface graphProps {
     width: number,
     height: number,
     loading: boolean,
     setLoading: Function
-}
-interface Position {
-    coordinates: Point,
-    zoom: number
-}
+  }
 
 export const Graph: React.FC<graphProps> = ({ height, width, loading, setLoading }) => {
     const fatalService = FatalService;
@@ -268,33 +267,17 @@ export const Graph: React.FC<graphProps> = ({ height, width, loading, setLoading
     const graph =
         <div className="graph-container">
             <div style={style.block}>
-                
-                <ComposableMap
-                    projection="geoAlbersUsa"
-                >
-                    <ZoomableGroup
-                        zoom={position.zoom}
-                        center={position.coordinates}
-                        onMoveEnd={handleMoveEnd}
-                    >
-                        <Geographies geography={geoUrl}>
-                            {({ geographies }) =>
-                                geographies.map((geo: any) => {
-                                    const cur = data[geo.id]; // id == fips county
-                                    return (
-                                        <Geography
-                                            key={geo.rsmKey}
-                                            geography={geo}
-                                            fill={cur ? colorMap[colorScale(cur)] : "rgb(61, 61, 61)"}
-                                        />
-                                    );
-                                })
-                            }
-                        </Geographies>
-                    </ZoomableGroup>
-                </ComposableMap>
 
-                <Controls 
+                <Map
+                    data={data}
+                    position={position}
+                    handleMoveEnd={handleMoveEnd}
+                    geoUrl={geoUrl}
+                    colorScale={colorScale}
+                    colorMap={colorMap}
+                />
+
+                <Controls
                     handleZoomIn={handleZoomIn}
                     handleZoomOut={handleZoomOut}
                 />
