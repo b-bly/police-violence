@@ -90,7 +90,7 @@ class FatalService {
 
   async getDeathsByLocation(location: string, year: string, causeOfDeath: string) {
     await this.loadDataIfNotLoaded();
-    let fatalEncountersData = this.fatalEncountersData;
+    let fatalEncountersData: Death[] = this.fatalEncountersData.map((x: Death) => new Death({...x.toState()}));
     if (year !== 'all') {
       fatalEncountersData = await this.filterDataForYear(year);
     }
@@ -105,15 +105,14 @@ class FatalService {
   async getBlackToWhiteRiskData(location: string, year: string, causeOfDeath: string) {
     await this.loadDataIfNotLoaded();
     await censusService.loadDataIfNotLoaded();
-    let fatalEncountersData = this.fatalEncountersData;
+    let fatalEncountersData = this.fatalEncountersData.map((x: Death) => new Death({...x.toState()}));;
     if (year !== 'all') {
       fatalEncountersData = await this.filterDataForYear(year);
     }
     if (causeOfDeath !== 'all') {
       fatalEncountersData = await this.filterDataForCauseOfDeath(causeOfDeath);
     }
-    // const deathData = this.aggregateByLocation(location, fatalEncountersData);
-
+    const locations = this.aggregateByLocation(location, fatalEncountersData).map(record => record.geoId);
     // filter by race
     let whiteDeathData: any[] = fatalEncountersData.filter((record: any) => record.race === 'European-American/White');
     let blackDeathData: any[] = fatalEncountersData.filter((record: any) => record.race === 'African-American/Black');
@@ -122,19 +121,28 @@ class FatalService {
     let whiteDeathDataObj: any = this.countDeaths(whiteDeathData);
     let blackDeathDataObj: any = this.countDeaths(blackDeathData);
     const blackToWhiteDeathRatios: any = {};
-    for (let locationId in whiteDeathDataObj) {
-      if (blackDeathDataObj[locationId]) {
-        // calc black : white death ratio in police encounters
-        // TODO: replace locationId with FIPS in censusdata
-        const ratio = blackDeathDataObj[locationId] / whiteDeathDataObj[locationId];
-        if (whiteDeathDataObj[locationId] < 5) {
-          // console.log(`black deaths for ${locationId}`)
-          // console.log(blackDeathDataObj[locationId]);
-          // console.log('white deaths')
-          // console.log(whiteDeathDataObj[locationId]);
-        }
-        blackToWhiteDeathRatios[locationId] = ratio;
+    for (let locationId of locations) {
+      let ratio;
+      if (blackDeathDataObj[locationId] === undefined) {
+        // if there is no record of black deaths, it is zero
+        ratio = 0;
+      } else if (whiteDeathDataObj[locationId] === undefined && blackDeathDataObj[locationId] !== undefined) {
+        // if there is no record of white deaths, it is zero,
+        // but can't divide by zero
+        ratio = blackDeathDataObj[locationId] / 1;
+        console.log(locationId)
+      } else if (blackDeathDataObj[locationId] && whiteDeathDataObj[locationId]) {
+        ratio = blackDeathDataObj[locationId] / whiteDeathDataObj[locationId];
+      } else {
+        ratio = 0;
       }
+      blackToWhiteDeathRatios[locationId] = Number(ratio);
+      // if (whiteDeathDataObj[locationId] < 5) {
+      // console.log(`black deaths for ${locationId}`)
+      // console.log(blackDeathDataObj[locationId]);
+      // console.log('white deaths')
+      // console.log(whiteDeathDataObj[locationId]);
+      // }
     }
     let blackToWhiteRiskData: any[] = []
     if (location.toLowerCase() === 'counties') {

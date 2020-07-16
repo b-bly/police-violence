@@ -29,7 +29,6 @@ export const Dropdown: React.FC<DropdownProps> = ({ listRef, label, choices,
     e.preventDefault();
     if (e.currentTarget.textContent !== null
       && e.currentTarget.textContent !== selected) {
-        console.log('set selected')
       setSelected(e.currentTarget.textContent);
     }
   }

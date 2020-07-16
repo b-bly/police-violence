@@ -40,19 +40,16 @@ class CensusService {
 
       }
 
-      if (record[blackIndex] !== null && record[whiteIndex] !== null) {
-        const numberOfBlacks = parseInt(record[blackIndex], 10);
-        const numberOfWhites = parseInt(record[whiteIndex], 10);
-        const raceGeo: IRaceGeo = {
-          geoType,
-          numberOfBlacks,
-          numberOfWhites,
-          geoId
-        };
-        return raceGeo;
-      }
-      const empty: any = {};
-      return empty;
+      const numberOfBlacks = parseInt(record[blackIndex], 10) === null ? 0 : parseInt(record[blackIndex], 10);
+      const numberOfWhites = parseInt(record[whiteIndex], 10) === null ? 0 : parseInt(record[whiteIndex], 10);
+      const raceGeo: IRaceGeo = {
+        geoType,
+        numberOfBlacks,
+        numberOfWhites,
+        geoId
+      };
+      return raceGeo;
+
     }).filter((record: IRaceGeo) => Object.keys(record).length !== 0);
   }
 

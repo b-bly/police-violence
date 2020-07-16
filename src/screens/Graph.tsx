@@ -157,7 +157,7 @@ export const Graph: React.FC<graphProps> = ({ height, width, loading, setLoading
 
     const selectCauseOfDeath = async (newCause: string) => {
         await setCauseOfDeath(newCause);
-        await getData(location, year, causeOfDeath, dependentVariable);
+        await getData(location, year, newCause, dependentVariable);
     }
 
     const getColorScale = (range: number) => {
@@ -231,7 +231,7 @@ export const Graph: React.FC<graphProps> = ({ height, width, loading, setLoading
 
     const getRange = () => {
         const quantiles = colorScale.quantiles().map(x => Math.round(x).toString());
-        quantiles.push('more than ' + quantiles[quantiles.length - 1]);
+        quantiles.push('more than ' + Math.floor(parseInt(quantiles[quantiles.length - 1], 10)).toString());
         return quantiles;
     }
 
@@ -258,7 +258,8 @@ export const Graph: React.FC<graphProps> = ({ height, width, loading, setLoading
             display: 'block',
             width: '100%',
             maxHeight: calculateMapHeight(height) + "px",
-            maxWidth: calculateMapWidth(height) + "px"
+            maxWidth: calculateMapWidth(height) + "px",
+            margin: '.5rem',
         },
 
     }
@@ -291,7 +292,7 @@ export const Graph: React.FC<graphProps> = ({ height, width, loading, setLoading
                     </ZoomableGroup>
                 </ComposableMap>
 
-                {/*TODO: move to component */}
+                {/* TODO: move to component */}
                 <div className="controls">
                     <button onClick={handleZoomIn}
                         className="zoom-button"

@@ -24,7 +24,7 @@ export default class Death {
   }  
 
   toState() {
-    return {
+    const data: IDeath = {
       race: this.race,
       county: this.county,
       fips: this.fips,
@@ -33,5 +33,6 @@ export default class Death {
       causeOfDeath: this.causeOfDeath,
       date: this.date.toISOString()
     };
+    return data;
   }
 }
