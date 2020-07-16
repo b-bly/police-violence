@@ -160,8 +160,6 @@ export const Graph: React.FC<graphProps> = ({ height, width, loading, setLoading
         await getData(location, year, causeOfDeath, dependentVariable);
     }
 
-
-
     const getColorScale = (range: number) => {
         let colorScale = scaleQuantile()
             .domain(

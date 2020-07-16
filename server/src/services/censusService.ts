@@ -1,7 +1,5 @@
-import { IRaceGeo } from './../../../src/models/IRaceGeo';
 import { getCensusRaceDataByCounty } from '../3rdParty/censusApi';
-import { GeoType } from '../constants';
-import RaceGeo from '../models/RaceGeo';
+import { IRaceGeo, GeoType } from '../models';
 
 class CensusService {
   censusCountyData: any[] = [];
@@ -33,21 +31,21 @@ class CensusService {
       if (record[blackIndex] !== null && record[whiteIndex] !== null) {
         const numberOfBlacks = parseInt(record[blackIndex], 10);
         const numberOfWhites = parseInt(record[whiteIndex], 10);
-        return new RaceGeo( {
+        const raceGeo: IRaceGeo = {
           geoType,
           numberOfBlacks,
           numberOfWhites,
           geoId
-        });
+        };
+        return raceGeo;
       }
       const empty: any = {};
       return empty;
-    }).filter((record: RaceGeo) => Object.keys(record).length !== 0);
+    }).filter((record: IRaceGeo) => Object.keys(record).length !== 0);
   }
 
-  getCensusRaceDataByCountyBlackWhite = () => {
-    let data = this.censusCountyData.map((raceGeo: RaceGeo) => raceGeo.toState());;
-    return data;
+  getCensusCountyData () {
+    return this.censusCountyData;
   }
 }
 

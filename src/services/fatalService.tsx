@@ -2,7 +2,8 @@ import _ from 'lodash';
 import allStates from "../states.json";
 import { sleep } from '../utility';
 import censusService from './censusService';
-import Death from '../models/death';
+import { IDeath } from '../types';
+import Death from '../models/Death';
 
 interface DeathData {
   [key: number]: number
@@ -26,8 +27,8 @@ class FatalService {
 
   async loadFatalEncountersData(): Promise<void> {
     try {
-      const data = await this.get('/api/fatalEncounters');
-      this.fatalEncountersData = data;
+      const data: IDeath[] = await this.get('/api/fatalEncounters');
+      this.fatalEncountersData = data.map((record: IDeath) => new Death(record));
     } catch (e) {
       this.fatalEncountersData = [];
       console.log(e)

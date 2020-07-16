@@ -1,10 +1,10 @@
 import { loadFatalEncountersData, getCountyFips, stateIds } from '../3rdParty/index';
-import { columnHeadings } from '../constants';
-import DeathDB from '../models/deathDB';
+import { columnHeadings } from '../types';
 import GeoService from './geoService';
+import { IDeath } from '../models';
 
 class FatalService {
-  private fatalEncountersData: any[];
+  private fatalEncountersData: IDeath[];
   private counties: any[];
   private stateIds: any[];
 
@@ -19,7 +19,7 @@ class FatalService {
   }
 
   getFatalEncountersData() {
-    return this.fatalEncountersData.map(record => record.toState());
+    return this.fatalEncountersData;
   }
 
   async loadFatalEncountersData(): Promise<void> {
@@ -34,14 +34,16 @@ class FatalService {
       const race = record[columnHeadings.race];
       const date = new Date(record[columnHeadings.date]).toISOString();
 
-      return new DeathDB(
+      const data: IDeath = {
         race,
         county,
         fips,
         state,
         stateId,
         causeOfDeath,
-        date);
+        date
+      };
+      return data;
     });
   }
 }

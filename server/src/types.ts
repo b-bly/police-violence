@@ -9,8 +9,3 @@ export const columnHeadings: IColumnHeadings = {
   date: "Date of injury resulting in death (month/day/year)",
   race: "Subject's race"
 };
-
-export enum GeoType {
-  county,
-  state
-}

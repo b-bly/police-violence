@@ -1,4 +1,4 @@
-import { IRaceGeo } from "../models/IRaceGeo";
+import { IRaceGeo } from "../types";
 import RaceGeo from "../models/RaceGeo";
 
 class CensusService {

@@ -1,5 +1,4 @@
-import { GeoType } from "../types";
-import { IRaceGeo } from "./IRaceGeo";
+import { GeoType, IRaceGeo } from "../types";
 
 export default class RaceGeo {
   geoType: GeoType;
