@@ -25,7 +25,8 @@ class CensusService {
 
   async loadRaceDataByState() {
     const url = '/api/census/state';
-    return await this.get(url);
+    const data: IRaceGeo[] = await this.get(url);
+    return data.map((record: IRaceGeo) => new RaceGeo(record));
   }
 
   async getRaceDataByCounty() {
@@ -42,6 +43,7 @@ class CensusService {
     if (this.raceDataByCounty.length < 1) {
       try {
       this.raceDataByCounty = await this.loadRaceDataByCounty();
+      this.raceDataByState = await this.loadRaceDataByState();
       } catch (e) {
         console.log(e);
         this.raceDataByCounty = [];

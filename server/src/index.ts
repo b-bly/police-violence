@@ -2,6 +2,7 @@ import express from "express";
 import bodyParser from 'body-parser';
 const clientPath = '../../build/';
 const port = 8080;
+const morgan = require('morgan')
 
 // Routes
 
@@ -10,6 +11,15 @@ import { fatalEncounters } from "./routes/fatalEncounters";
 
 const app = express();
 app.use(bodyParser.json())
+
+// Logging
+
+app.use(morgan('dev'))
+app.use(
+	bodyParser.urlencoded({
+		extended: false
+	})
+);
 
 app.use('/api/census', census);
 app.use('/api/fatalEncounters', fatalEncounters);

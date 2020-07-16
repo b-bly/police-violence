@@ -427,19 +427,23 @@ export const Graph: React.FC<graphProps> = ({ height, width, loading, setLoading
 // age and sex
 // https://data.census.gov/api/access/data/table?g=0100000US&id=ACSST1Y2018.S0101
 
-// total white
-// B01001A_001E 
-// B02001_008MA (use this)
+    // total black
+    // B02001_003E (use) index 37
 
-// total black
-// B01001B_001E
-// B02001_003E (use)
+    // total white
+    // B02001_002E  index 21
 
 // 2017
 
 // counties - race
 // api:  https://data.census.gov/api/access/data/table?g=0100000US.050000&id=ACSDT1Y2018.B02001
 // table: https://data.census.gov/cedsci/table?q=race&tid=ACSDT1Y2018.B02001&vintage=2018&hidePreview=true&g=0100000US.050000
+
+// states
+// table
+// https://data.census.gov/cedsci/table?q=race&tid=ACSDT1Y2018.B02001&vintage=2018&hidePreview=true&g=0100000US.050000,.04000.001
+// api
+// https://data.census.gov/api/access/data/table?g=0100000US.04000.001&id=ACSDT1Y2018.B02001
 
 // counties - black
 // https://data.census.gov/api/access/data/table?t=Black%20or%20African%20American&g=0100000US.050000&y=2018&id=ACSDT1Y2018.B01001B
