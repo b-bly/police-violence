@@ -1,14 +1,16 @@
-import { loadFatalEncountersData, getCountyFips, stateIds } from '../3rdParty/index';
-import { columnHeadings } from '../types';
+const moment = require('moment');
+import { columnHeadings } from '../constants';
 import GeoService from './geoService';
 import { IDeath } from '../models';
+import { getFatalEncountersData } from '../3rdParty/fatalGoogleSheet';
+// import { loadFatalEncountersData } from '../3rdParty/index';
+
+import _ from 'lodash';
 
 class FatalService {
   private fatalEncountersData: IDeath[];
-  private counties: any[];
-  private stateIds: any[];
 
-  constructor (public geoService = GeoService) {}
+  constructor(public geoService = GeoService) { }
 
   async init(cb?: () => void) {
 
@@ -24,16 +26,20 @@ class FatalService {
 
   async loadFatalEncountersData(): Promise<void> {
     await this.geoService.init(() => { return; });
-    const fatalData = await loadFatalEncountersData();
-    this.fatalEncountersData = fatalData.map(record => {
-      const county = record[columnHeadings.counties];
-      const fips: string = this.geoService.getCountyFipsId(county);
-      const state = record[columnHeadings.states];
-      const stateId: string = this.geoService.getStateId(state);
-      const causeOfDeath = record[columnHeadings.causeOfDeath];
-      const race = record[columnHeadings.race];
-      const date = new Date(record[columnHeadings.date]).toISOString();
+    const fatalData = await getFatalEncountersData();
 
+    // to load from csv:
+    // const fatalData = await loadFatalEncountersData();
+
+    this.fatalEncountersData = fatalData.map((record: any, i: number) => {
+      let county = record[columnHeadings.counties] ? record[columnHeadings.counties] : null;
+      const state = record[columnHeadings.states] ? record[columnHeadings.states] : null;
+      const causeOfDeath = record[columnHeadings.causeOfDeath] ? record[columnHeadings.causeOfDeath] : null;
+      const race = record[columnHeadings.race] ? record[columnHeadings.race] : null;
+      let fips: string = !county ? null : this.geoService.getCountyFipsId(county);
+      const stateId: string = state ? this.geoService.getStateId(state) : null;
+      let dateObj = moment(record[columnHeadings.date]);
+      let date: string = dateObj ? dateObj.toISOString() : null;
       const data: IDeath = {
         race,
         county,

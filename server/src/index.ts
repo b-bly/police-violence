@@ -1,14 +1,14 @@
 import express from "express";
 import bodyParser from 'body-parser';
-const clientPath = '../../build/';
-const port = 8080;
 const morgan = require('morgan')
+import fetchJsonp from 'fetch-jsonp';
 
 // Routes
 
 import { census } from './routes/census';
 import { fatalEncounters } from "./routes/fatalEncounters";
 
+const port = 8080;
 const app = express();
 app.use(bodyParser.json())
 
