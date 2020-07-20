@@ -1,12 +1,11 @@
 import React from 'react';
 import './About.css';
-import { blue } from '../style/colors';
 
 interface AboutProps {
 
 }
 
-export const About: React.FC<AboutProps> = ({ }) => {
+export const About: React.FC<AboutProps> = () => {
   return (
     <div className="container">
       <div className="text-container">
@@ -48,44 +47,3 @@ export const About: React.FC<AboutProps> = ({ }) => {
     </div>
   );
 }
-
-
-// fatal encounters data:
-// https://docs.google.com/spreadsheets/d/1dKmaV_JiWcG8XBoRgP8b4e9Eopkpgt7FL7nyspvzAsE/edit#gid=0
-// download:
-// https://docs.google.com/spreadsheets/d/1dKmaV_JiWcG8XBoRgP8b4e9Eopkpgt7FL7nyspvzAsE/export?format=csv&id=1dKmaV_JiWcG8XBoRgP8b4e9Eopkpgt7FL7nyspvzAsE&gid=0
-// blocked by cors
-// possible workaround with jsonp:
-// https://stackoverflow.com/questions/32897921/why-does-this-cors-request-to-a-google-drive-sheet-fail-in-firefox-works-in-c
-
-// census api with race data
-// https://www.census.gov/data/developers/data-sets/decennial-census.html
-// file download https://www.census.gov/data/tables/time-series/demo/popest/2010s-counties-detail.html
-
-
-// Total black
-// H016B001
-
-// age and sex
-// https://data.census.gov/api/access/data/table?g=0100000US&id=ACSST1Y2018.S0101
-
-    // total black
-    // B02001_003E (use) index 37
-
-    // total white
-    // B02001_002E  index 21
-
-// 2017
-
-// counties - race
-// api:  https://data.census.gov/api/access/data/table?g=0100000US.050000&id=ACSDT1Y2018.B02001
-// table: https://data.census.gov/cedsci/table?q=race&tid=ACSDT1Y2018.B02001&vintage=2018&hidePreview=true&g=0100000US.050000
-
-// states
-// table
-// https://data.census.gov/cedsci/table?q=race&tid=ACSDT1Y2018.B02001&vintage=2018&hidePreview=true&g=0100000US.04000.001
-// api
-// https://data.census.gov/api/access/data/table?g=0100000US.04000.001&id=ACSDT1Y2018.B02001
-
-// counties - black
-// https://data.census.gov/api/access/data/table?t=Black%20or%20African%20American&g=0100000US.050000&y=2018&id=ACSDT1Y2018.B01001B

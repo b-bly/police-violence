@@ -14,9 +14,9 @@ export const getJsonFromCsv = async (url: string, cb?: () => void): Promise<any[
         data.push(row);
       })
       .on('end', () => {
-        console.log('CSV file successfully processed');
         resolve(data);
       });
+      if (cb) { cb(); }
   });
 }
 
@@ -44,22 +44,22 @@ export function sleep(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-export const csvToJSON = (csv: string) => {
-  const lines = csv.split("\n");
+export const csvToJSON = (csvString: string) => {
+  const lines = csvString.split("\n");
   const result = [];
   const headers = lines[0].split(",");
 
-  for (var i = 1; i < lines.length; i++) {
+  for (let i = 1; i < lines.length; i++) {
 
     const obj: any = {};
     const currentline = lines[i].split(",");
 
-    for (var j = 0; j < headers.length; j++) {
+    for (let j = 0; j < headers.length; j++) {
       obj[headers[j]] = currentline[j];
     }
     result.push(obj);
   }
 
-  //return result; //JavaScript object
+  // return result; //JavaScript object
   return result;
 }

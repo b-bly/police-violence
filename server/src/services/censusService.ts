@@ -30,7 +30,7 @@ class CensusService {
     const whiteIndex = headers.indexOf('B02001_002E');
 
     return csvObject.slice(1).map<IRaceGeo>((record: any, i) => {
-      let geoId: string = record[24];
+      const geoId: string = record[24];
       const numberOfBlacks = parseInt(record[blackIndex], 10) === null ? 0 : parseInt(record[blackIndex], 10);
       const numberOfWhites = parseInt(record[whiteIndex], 10) === null ? 0 : parseInt(record[whiteIndex], 10);
       const raceGeo: IRaceGeo = {
@@ -56,8 +56,8 @@ class CensusService {
     const whiteIndex = headers.indexOf('B02001_002E');
 
     return csvObject.slice(1).map<IRaceGeo>((record: any, i) => {
-      // geoId = fips = state [25] + county [15] 
-      let geoId: string = record[25] + record[15];
+      // geoId = fips = state [25] + county [15]
+      const geoId: string = record[25] + record[15];
       if (record[blackIndex] !== null && record[whiteIndex] !== null) {
         const numberOfBlacks = parseInt(record[blackIndex], 10);
         const numberOfWhites = parseInt(record[whiteIndex], 10);

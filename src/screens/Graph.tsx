@@ -123,10 +123,6 @@ export const Graph: React.FC<graphProps> = ({ height, width, loading, setLoading
         return '';
     }
 
-    // const handleClickOutside = () => {
-    //     setDropdownOpen('');
-    // }
-
 
     const load = async () => {
         if (yearsRange.length < 1) {
@@ -247,10 +243,6 @@ export const Graph: React.FC<graphProps> = ({ height, width, loading, setLoading
             // remove event listener
             document.removeEventListener("click", handleClickOutside);
         }
-
-        // https://docs.google.com/spreadsheets/d/1dKmaV_JiWcG8XBoRgP8b4e9Eopkpgt7FL7nyspvzAsE/edit#gid=0
-        // county fips
-        // https://www.nrcs.usda.gov/wps/portal/nrcs/detail/national/home/?cid=nrcs143_013697
     });
 
     const style = {

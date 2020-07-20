@@ -11,7 +11,7 @@
     "build": "npm run tsc",
     "postbuild": "cpy '**/*' '!**/*.ts' ../dist/ --cwd=src/ --no-overwrite --parents",
     "prestart": "npm run build",
-    "start": "node .",
+    "start": "node ./dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev:start": "ts-node src/index.ts",
     "dev": "nodemon --watch src -e ts,ejs --exec npm run dev:start"

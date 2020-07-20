@@ -123,13 +123,6 @@ class FatalService {
     const blackToWhiteDeathRatios: any = {};
     for (let locationId of locations) {
       let ratio;
-
-      if (locationId == '06037') {
-        
-        console.log('black deaths: ' + blackDeathDataObj[locationId]);
-        console.log('white deaths: ' + whiteDeathDataObj[locationId]);
-      }
-
       if (blackDeathDataObj[locationId] === undefined) {
         // if there is no record of black deaths, it is zero
         ratio = 0;
@@ -143,19 +136,13 @@ class FatalService {
         ratio = 0;
       }
       blackToWhiteDeathRatios[locationId] = Number(ratio);
-      // if (whiteDeathDataObj[locationId] < 5) {
-      // console.log(`black deaths for ${locationId}`)
-      // console.log(blackDeathDataObj[locationId]);
-      // console.log('white deaths')
-      // console.log(whiteDeathDataObj[locationId]);
-      // }
     }
     let blackToWhiteRiskData: any[] = []
     if (location.toLowerCase() === 'counties') {
-      blackToWhiteRiskData = censusService.raceDataByCounty; // await censusService.getRaceDataByCounty();
+      blackToWhiteRiskData = censusService.raceDataByCounty; 
 
     } else if (location.toLowerCase() === 'states') {
-      blackToWhiteRiskData = censusService.raceDataByState; // await censusService.getRaceDataByState();
+      blackToWhiteRiskData = censusService.raceDataByState; 
     } else {
       throw new Error('Invalid location.');
     }
@@ -166,34 +153,12 @@ class FatalService {
     for (let locationId in blackToWhiteDeathRatios) {
       const record = blackToWhiteRiskData.find(record => record.geoId === locationId);
       if (record) {
-
-
-        if (locationId == '06037') {
-          console.log('black pop: ' + record.numberOfBlacks);
-          console.log('white pop: '+  record.numberOfWhites);
-        }
-
-
+        
         // deaths ratio / demo ratio
         const deathsRatio = blackToWhiteDeathRatios[locationId];
         const BWRaceRatio = record.raceRatio;
-        const risk = deathsRatio / BWRaceRatio;  // record.blackToWhiteRatio;
-        // if (risk > 200) { 
-        // console.log('***********************')
-        // console.log(`black deaths for ${locationId}`)
-        // console.log(blackDeathDataObj[locationId]);
-        // console.log('white deaths')
-        // console.log(whiteDeathDataObj[locationId]);
-        // console.log('black to white ratio');
-        // console.log(record.blackToWhiteRatio);
-
-
-        // console.log('deathsRatio')
-        // console.log(deathsRatio);
-        // console.log('blackToWhiteRatio');
-
-        // console.log(record.blackToWhiteRatio);
-        // }
+        const risk = deathsRatio / BWRaceRatio;  
+        
         riskData[locationId] = risk;
       }
     }

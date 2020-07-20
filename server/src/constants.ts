@@ -29,6 +29,6 @@ export const causesOfDeath = [
   "Unknown"
 ];
 
-export const races = ['European-American/White', 'African-American/Black', 'Hispanic/Latino', 
-'Race unspecified', 'Native American/Alaskan', 'Asian/Pacific Islander', 'Middle Eastern', 
+export const races = ['European-American/White', 'African-American/Black', 'Hispanic/Latino',
+'Race unspecified', 'Native American/Alaskan', 'Asian/Pacific Islander', 'Middle Eastern',
 'HIspanic/Latino'];

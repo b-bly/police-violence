@@ -15,14 +15,14 @@ export const fatalCsvToJSON = (csv: string) => {
   const lines = csv.split("\n");
   const result = [];
   const headers = lines[0].split(",");
-  for (var i = 1; i < lines.length; i++) {
+  for (let i = 1; i < lines.length; i++) {
     const obj: any = {};
     const currentLine = lines[i].split(",");
-    for (var j = headers.length - 1; j >= 0; j--) {
-      if (headers[j] && headers[j].toLowerCase() == columnHeadings.causeOfDeath.toLowerCase()) {
+    for (let j = headers.length - 1; j >= 0; j--) {
+      if (headers[j] && headers[j].toLowerCase() === columnHeadings.causeOfDeath.toLowerCase()) {
         // necessary because if a column is empty, Google Sheets just omits it from the data (no ',')
         obj[headers[j]] = getCauseOfDeath(currentLine);
-      } else if (headers[j] && headers[j] == columnHeadings.race) {
+      } else if (headers[j] && headers[j] === columnHeadings.race) {
         obj[headers[j]] = getRace(currentLine);
       } else {
         obj[headers[j]] = currentLine[j];
@@ -31,7 +31,7 @@ export const fatalCsvToJSON = (csv: string) => {
     result.push(obj);
   }
 
-  //return result; //JavaScript object
+  // return result; //JavaScript object
   return result;
 }
 
