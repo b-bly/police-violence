@@ -62,7 +62,7 @@ class FatalService {
     await this.loadDataIfNotLoaded();
     const years = _.uniq(this.fatalEncountersData.map((data: Death) =>
       data.year))
-      .filter(year => parseInt(year) < new Date().getFullYear());
+      .filter(year => parseInt(year) <= new Date().getFullYear() && parseInt(year) > 2000);
     return ['all', ...years];
   }
 
@@ -123,6 +123,13 @@ class FatalService {
     const blackToWhiteDeathRatios: any = {};
     for (let locationId of locations) {
       let ratio;
+
+      if (locationId == '06037') {
+        
+        console.log('black deaths: ' + blackDeathDataObj[locationId]);
+        console.log('white deaths: ' + whiteDeathDataObj[locationId]);
+      }
+
       if (blackDeathDataObj[locationId] === undefined) {
         // if there is no record of black deaths, it is zero
         ratio = 0;
@@ -130,7 +137,6 @@ class FatalService {
         // if there is no record of white deaths, it is zero,
         // but can't divide by zero
         ratio = blackDeathDataObj[locationId] / 1;
-        console.log(locationId)
       } else if (blackDeathDataObj[locationId] && whiteDeathDataObj[locationId]) {
         ratio = blackDeathDataObj[locationId] / whiteDeathDataObj[locationId];
       } else {
@@ -160,6 +166,14 @@ class FatalService {
     for (let locationId in blackToWhiteDeathRatios) {
       const record = blackToWhiteRiskData.find(record => record.geoId === locationId);
       if (record) {
+
+
+        if (locationId == '06037') {
+          console.log('black pop: ' + record.numberOfBlacks);
+          console.log('white pop: '+  record.numberOfWhites);
+        }
+
+
         // deaths ratio / demo ratio
         const deathsRatio = blackToWhiteDeathRatios[locationId];
         const BWRaceRatio = record.raceRatio;

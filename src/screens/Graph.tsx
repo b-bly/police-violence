@@ -51,7 +51,7 @@ export const Graph: React.FC<graphProps> = ({ height, width, loading, setLoading
     const dependentRef: React.RefObject<HTMLUListElement> = React.createRef();
     const dropdownRefs = [locationRef, yearsRef, causeOfDeathRef, dependentRef];
     const dependentRange = ['risk', 'deaths']
-    const defaultLocation = 'counties';
+    const defaultLocation = 'states';
     const defaultYear = 'all';
     const defaultCauseOfDeath = 'all';
     const defaultDependentVariable = 'deaths';
@@ -61,7 +61,7 @@ export const Graph: React.FC<graphProps> = ({ height, width, loading, setLoading
     // legend variables
     const titles: any = {
         deaths: 'Number of deaths',
-        risk: 'Times more likely blacks are to be killed than whites.'
+        risk: 'Risk: Times more likely blacks are to die than whites.'
     };
     const labels: any = {
         deaths: 'deaths',
