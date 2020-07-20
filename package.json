@@ -32,7 +32,7 @@
     "eject": "react-scripts eject",
     "dev": "concurrently \"react-scripts start\" \"cd server && npm run dev\"",
     "heroku-prebuild": "npm install --only=dev && npm install && cd server && npm install --only=dev && npm install",
-    "heroku-postbuild": "npm run build && cd server && npm run build"
+    "heroku-postbuild": "react-scripts build && cd server && npm run build"
   },
   "engines": {
     "node": "10.20.1"
