@@ -3,7 +3,7 @@ import allStates from "../states.json";
 import { sleep } from '../utility';
 import censusService from './censusService';
 import { IDeath } from '../types';
-import Death from '../models/Death';
+import Death from '../models/death';
 
 interface DeathData {
   [key: number]: number
