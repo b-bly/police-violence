@@ -48,23 +48,30 @@ export default class App extends Component<AppProps, AppState> {
         const aspectRatio = 670 / 505;
         return this.state.width > (this.state.height * aspectRatio) ? (this.state.height * 1.1) / 11 : this.state.width / 11;
     }
+
+    // 354
+    calculateBackgroundTextWidth() {
+        const mapWidth = calculateMapWidth(this.state.height);
+        if (this.state.width < 767) {
+            return '100%';
+        } else if (mapWidth >= this.state.height) { 
+            return this.state.width - 200;
+        }  
+        return mapWidth;
+    }
     render() {
         const backgroundTextStyle = {
             height: this.state.width / 1.6,
-            width: this.state.width - 200, // 200 = max width of legend
+            width: this.calculateBackgroundTextWidth(), //this.state.width - 200, // 200 = max width of legend
             fontSize: this.calculateFontSize(), // this.state.width /11,
             maxHeight: calculateMapHeight(this.state.height) + "px",
-            maxWidth: calculateMapWidth(this.state.height) + "px"
         }
-        const backgroundTextSize = {
-            maxHeight: calculateMapHeight(this.state.height) + "px",
-            maxWidth: calculateMapWidth(this.state.height) + "px"
-        }
+
         return (
             <div>
                 {this.state.loading === false &&
                     <div className="background-text" style={backgroundTextStyle}>
-                        <div style={backgroundTextSize}>I can't breathe</div>
+                        <div>I can't breathe</div>
 
                     </div>
                 }
