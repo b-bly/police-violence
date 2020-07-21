@@ -4,6 +4,8 @@ This app visualizes the data collected by the group fatalencounters.org.  It's m
 
 ![app picture](/police-violence.png)
 
+Link to the live app: [police-violence](http://police-violence.herokuapp.com/)
+
 ## Built With
 
 ReactJS, Typescript, Node.js.
