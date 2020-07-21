@@ -2,7 +2,7 @@
 
 This app visualizes the data collected by the group fatalencounters.org.  It's meant to help spread awareness about police violence, and the disproportionate deaths of blacks in police encounters.
 
-![app picture](/police-violence.png)
+![app picture](/public/data/police-violence.png)
 
 Link to the live app: [police-violence](http://police-violence.herokuapp.com/)
 
