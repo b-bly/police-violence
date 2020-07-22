@@ -51,10 +51,10 @@ export const Graph: React.FC<graphProps> = ({ height, width, loading, setLoading
     const dependentRef: React.RefObject<HTMLUListElement> = React.createRef();
     const dropdownRefs = [locationRef, yearsRef, causeOfDeathRef, dependentRef];
     const dependentRange = ['risk', 'deaths']
-    const defaultLocation = 'states';
+    const defaultLocation = 'counties';
     const defaultYear = 'all';
     const defaultCauseOfDeath = 'all';
-    const defaultDependentVariable = 'deaths';
+    const defaultDependentVariable = 'risk';
     const center: Point = [-96, 38];
 
 
