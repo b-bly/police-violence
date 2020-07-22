@@ -54,7 +54,8 @@ class FatalService {
   async getCausesOfDeath() {
     await this.loadDataIfNotLoaded();
     const causesOfDeath: string[] = _.uniqBy(this.fatalEncountersData, "causeOfDeath")
-      .map((death: Death) => death.causeOfDeath);
+      .map((death: Death) => death.causeOfDeath)
+      .filter(causeOfDeath => causeOfDeath !== null && causeOfDeath !== undefined && causeOfDeath.length > 0);
     return ['all', ...causesOfDeath];
   }
 
