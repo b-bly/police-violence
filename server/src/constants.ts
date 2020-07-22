@@ -32,3 +32,15 @@ export const causesOfDeath = [
 export const races = ['European-American/White', 'African-American/Black', 'Hispanic/Latino',
 'Race unspecified', 'Native American/Alaskan', 'Asian/Pacific Islander', 'Middle Eastern',
 'HIspanic/Latino'];
+
+export const allowedExt = [
+	'.js',
+	'.ico',
+	'.css',
+	'.png',
+	'.jpg',
+	'.woff2',
+	'.woff',
+	'.ttf',
+	'.svg',
+];

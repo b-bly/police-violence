@@ -6,6 +6,7 @@ const morgan = require('morgan');
 
 import { census } from './routes/census';
 import { fatalEncounters } from "./routes/fatalEncounters";
+import { allowedExt } from './constants';
 
 // dev .env variables
 
@@ -34,15 +35,27 @@ app.use('/api/census', census);
 app.use('/api/fatalEncounters', fatalEncounters);
 
 // ==== if its production environment
-const clientPath = '../../build/static/';
+const clientPath = '../../build/';
 if (process.env.NODE_ENV === 'production') {
 	const path = require('path')
-	app.use('/static', express.static(path.join(__dirname, clientPath)))
+	app.use('/static', express.static(path.join(__dirname, clientPath, 'static')));
 	app.get('/', (req, res) => {
-		console.log('dirname');
-		console.log(__dirname);
-		res.sendFile(path.join(__dirname, '../../build/', 'index.html'))
+		res.sendFile(path.join(__dirname, clientPath, 'index.html'))
 	})
+
+	app.get('*', (req, res) => {
+
+		// if there is a file extension, send the file
+
+		if (allowedExt.filter(ext => req.url.indexOf(ext) > 0).length > 0) {
+			// remove any querystring like '?q=search-terms'
+			req.url = req.url.replace(/\?.*/g, '');
+
+			res.sendFile(path.resolve(__dirname, `${clientPath}${req.url}`));
+		} else {
+			res.sendFile(path.resolve(__dirname, `${clientPath}index.html`));
+		}
+	});
 }
 
 // Starting Server
