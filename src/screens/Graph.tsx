@@ -54,7 +54,7 @@ export const Graph: React.FC<graphProps> = ({ height, width, loading, setLoading
     const defaultLocation = 'counties';
     const defaultYear = 'all';
     const defaultCauseOfDeath = 'all';
-    const defaultDependentVariable = 'risk';
+    const defaultDependentVariable = 'deaths';
     const center: Point = [-96, 38];
 
 
