@@ -22,7 +22,6 @@ class FatalService {
   async get(url: string) {
     const res = await fetch(url);
     return await res.json();
-
   }
 
   async loadFatalEncountersData(): Promise<void> {
