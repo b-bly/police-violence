@@ -40,6 +40,7 @@ The app should automatically open in a browser at the url: localhost:3000
 
 - [ ] Bar graphs of locations with highest deaths.
 - [ ] Filter for race.
+- [ ] Fix census api using https://www.census.gov/data/developers/data-sets/decennial-census.html
 
 ## Author
 
