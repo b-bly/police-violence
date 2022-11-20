@@ -34,7 +34,7 @@ class FatalService {
     this.fatalEncountersData = fatalData.map((record: any, i: number) => {
       const county = record[columnHeadings.counties] ? record[columnHeadings.counties] : null;
       const state = record[columnHeadings.states] ? record[columnHeadings.states] : null;
-      const causeOfDeath = record[columnHeadings.causeOfDeath] ? record[columnHeadings.causeOfDeath] : null;
+      const causeOfDeath: string = null; // record[columnHeadings.causeOfDeath] ? record[columnHeadings.causeOfDeath] :
       const race = record[columnHeadings.race] ? record[columnHeadings.race] : null;
       const fips: string = !county ? null : this.geoService.getCountyFipsId(county);
       const stateId: string = state ? this.geoService.getStateId(state) : null;

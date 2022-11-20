@@ -36,7 +36,7 @@ class CensusService {
 
   async getRaceDataByState() {
     await this.loadDataIfNotLoaded();
-    return this.raceDataByCounty;
+    return this.raceDataByState;
   }
 
   async loadDataIfNotLoaded() {

@@ -16,6 +16,7 @@ ReactJS, Typescript, Node.js.
 
 - A package manager like [npm](https://www.npmjs.com/)
 - [Node.js](https://nodejs.org/en/)
+- [nodemon](https://www.npmjs.com/package/nodemon)
 
 
 ### Installing
@@ -30,6 +31,16 @@ npm run dev
 
 The app should automatically open in a browser at the url: localhost:3000
 
+## Environment
+
+Get a US Census api key from https://api.census.gov/data/key_signup.html
+
+Create a file called `.env` in the `server/` directory and add this variable
+
+```
+CENSUS_KEY=<your key value>
+```
+
 ### Completed Features
 
 - [x] Map data for deaths by state and county.
@@ -40,7 +51,6 @@ The app should automatically open in a browser at the url: localhost:3000
 
 - [ ] Bar graphs of locations with highest deaths.
 - [ ] Filter for race.
-- [ ] Fix census api using https://www.census.gov/data/developers/data-sets/decennial-census.html
 
 ## Author
 

@@ -32,7 +32,7 @@
     "heroku-postbuild": "concurrently \"react-scripts build\" \"cd server && npm run build\""
   },
   "engines": {
-    "node": "10.20.1"
+    "node": "16.18.1"
   },
   "eslintConfig": {
     "extends": "react-app"

@@ -3,7 +3,7 @@ import { IColumnHeadings } from "./types";
 
 export const columnHeadings: IColumnHeadings = {
   counties: "Location of death (county)",
-  states: "Location of death (state)",
+  states: "State",
   causeOfDeath: 'Cause of death',
   date: "Date of injury resulting in death (month/day/year)",
   race: 'Subject\'s race'
