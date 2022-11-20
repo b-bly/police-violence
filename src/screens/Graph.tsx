@@ -319,7 +319,8 @@ export const Graph: React.FC<graphProps> = ({ height, width, loading, setLoading
                             dropdownOpen={dropdownOpen}
                             height={height}
                         />
-                        <Dropdown
+                        {/* Cause of death has been removed from the data set. */}
+                        {/* <Dropdown
                             listRef={causeOfDeathRef}
                             choices={causesOfDeath}
                             label="Causes of Death" // location
@@ -328,7 +329,7 @@ export const Graph: React.FC<graphProps> = ({ height, width, loading, setLoading
                             setDropdownOpen={setDropdownOpen}
                             dropdownOpen={dropdownOpen}
                             height={height}
-                        />
+                        /> */}
                     </div>
 
                     {graph}
