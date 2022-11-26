@@ -10,8 +10,8 @@
         "lint": "npx tslint -c tslint.json -p tsconfig.json --fix",
         "prebuild": "npm run clean && npm run lint",
         "build": "npm run tsc",
-        "postbuild": "npx cpy '**/*' '!**/*.ts' ../dist/ --cwd=src/ --no-overwrite --parents",
-        "start": "NODE_ENV=production && node ./dist/index.js",
+        "postbuild": "cp ./src/3rdParty/county_fips.csv ./src/3rdParty/states.json ./dist/3rdParty/",
+        "start": "NODE_ENV=production node ./dist/index.js",
         "dev:start": "ts-node src/index.ts",
         "dev": "nodemon --watch src -e ts,ejs --exec npm run dev:start"
     },
