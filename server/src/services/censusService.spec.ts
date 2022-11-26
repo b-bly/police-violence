@@ -1,6 +1,5 @@
 import { CensusService } from './censusService'
-import 'mocha'
-import { expect } from 'chai'
+import { describe, expect, it, beforeAll } from '@jest/globals'
 import { GeoType, IRaceGeo } from '../models'
 
 const stateData = [
@@ -20,49 +19,49 @@ let result: IRaceGeo[]
 
 describe('CensusService', () => {
     describe('State data', () => {
-        before(() => {
+        beforeAll(() => {
             result = CensusService.formatStateData(stateData, GeoType.state)
         })
         it('Formats data', () => {
 
-            expect(result[0]).to.have.property('geoType')
-            expect(result[0]).to.have.property('numberOfBlacks')
-            expect(result[0]).to.have.property('numberOfWhites')
-            expect(result[0]).to.have.property('geoId')
+            expect(result[0]).toHaveProperty('geoType')
+            expect(result[0]).toHaveProperty('numberOfBlacks')
+            expect(result[0]).toHaveProperty('numberOfWhites')
+            expect(result[0]).toHaveProperty('geoId')
         })
 
         it('Has correct type', () => {
-            expect(result[0].geoType).to.be.a('number')
-            expect(result[0].numberOfBlacks).to.be.a('number')
-            expect(result[0].numberOfWhites).to.be.a('number')
-            expect(result[0].geoId).to.be.a('string')
+            expect(typeof result[0].geoType).toBe('number')
+            expect(typeof result[0].numberOfBlacks).toBe('number')
+            expect(typeof result[0].numberOfWhites).toBe('number')
+            expect(typeof result[0].geoId).toBe('string')
         })
 
         it('Returns the correct number of records', () => {
-            expect(result.length).to.equal(3)
+            expect(result.length).toEqual(3)
         })
     })
 
     describe('County data', () => {
-        before(() => {
+        beforeAll(() => {
             result = CensusService.formatCountyData(countyData, GeoType.county)
         })
         it('Formats data', () => {
-            expect(result[0]).to.have.property('geoType')
-            expect(result[0]).to.have.property('numberOfBlacks')
-            expect(result[0]).to.have.property('numberOfWhites')
-            expect(result[0]).to.have.property('geoId')
+            expect(result[0]).toHaveProperty('geoType')
+            expect(result[0]).toHaveProperty('numberOfBlacks')
+            expect(result[0]).toHaveProperty('numberOfWhites')
+            expect(result[0]).toHaveProperty('geoId')
         })
 
         it('Has correct type', () => {
-            expect(result[0].geoType).to.be.a('number')
-            expect(result[0].numberOfBlacks).to.be.a('number')
-            expect(result[0].numberOfWhites).to.be.a('number')
-            expect(result[0].geoId).to.be.a('string')
+            expect(typeof result[0].geoType).toBe('number')
+            expect(typeof result[0].numberOfBlacks).toBe('number')
+            expect(typeof result[0].numberOfWhites).toBe('number')
+            expect(typeof result[0].geoId).toBe('string')
         })
 
         it('Returns the correct number of records', () => {
-            expect(result.length).to.equal(2)
+            expect(result.length).toEqual(2)
         })
     })
 })
