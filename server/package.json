@@ -28,6 +28,7 @@
         "cpy-cli": "^2.0.0",
         "del-cli": "^3.0.0",
         "rimraf": "^3.0.2",
+        "ts-jest": "^27.1.5",
         "tslint": "^6.1.2",
         "typescript": "^3.7.5"
     },

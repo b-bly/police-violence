@@ -28,7 +28,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "dev": "concurrently \"react-scripts start\" \"cd server && npm run dev\"",
-    "heroku-prebuild": "npm install --only=dev && npm install && cd server && npm install --only=dev && npm install",
+    "heroku-prebuild": "npm ci && cd server && npm ci",
     "heroku-postbuild": "concurrently \"react-scripts build\" \"cd server && npm run build\""
   },
   "engines": {
