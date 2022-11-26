@@ -4,7 +4,7 @@
     "main": "dist/index.js",
     "license": "MIT",
     "scripts": {
-        "tsc": "tsc --p ./tsconfig.json",
+        "tsc": "tsc",
         "test": "npx jest",
         "clean": "rimraf dist/*",
         "lint": "npx tslint -c tslint.json -p tsconfig.json --fix",
@@ -30,7 +30,7 @@
         "rimraf": "^3.0.2",
         "ts-jest": "^27.1.5",
         "tslint": "^6.1.2",
-        "typescript": "^3.7.5"
+        "typescript": "^4.9.3"
     },
     "dependencies": {
         "body-parser": "^1.19.0",
