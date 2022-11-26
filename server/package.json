@@ -11,7 +11,7 @@
         "prebuild": "npm run clean && npm run lint",
         "build": "npm run tsc",
         "postbuild": "cpy '**/*' '!**/*.ts' ../dist/ --cwd=src/ --no-overwrite --parents",
-        "start": "node ./dist/index.js",
+        "start": "NODE_ENV=production && node ./dist/index.js",
         "dev:start": "ts-node src/index.ts",
         "dev": "nodemon --watch src -e ts,ejs --exec npm run dev:start"
     },
