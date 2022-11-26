@@ -44,7 +44,7 @@ if (process.env.NODE_ENV === 'production') {
 	})
 
 	app.get('*', (req, res) => {
-		
+
 		// if there is a file extension, send the file
 		if (allowedExt.filter(ext => req.url.indexOf(ext) > 0).length > 0) {
 			// remove any querystring like '?q=search-terms'
