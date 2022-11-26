@@ -7,7 +7,7 @@
         "tsc": "tsc",
         "test": "npx jest",
         "clean": "rimraf dist/*",
-        "lint": "tslint -c tslint.json -p tsconfig.json --fix",
+        "lint": "npx tslint -c tslint.json -p tsconfig.json --fix",
         "prebuild": "npm run clean && npm run lint",
         "build": "npm run tsc",
         "postbuild": "cpy '**/*' '!**/*.ts' ../dist/ --cwd=src/ --no-overwrite --parents",
