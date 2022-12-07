@@ -10,10 +10,10 @@ import { allowedExt } from './constants';
 
 // dev .env variables
 
-// if (process.env.NODE_ENV !== 'production') {
+if (process.env.NODE_ENV !== 'production') {
 	const dotenv = require("dotenv").config();
 	if (dotenv.error) { console.log(dotenv.error); }
-// }
+}
 
 const PORT = process.env.PORT || 8080;
 const app = express();
