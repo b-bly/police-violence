@@ -16,6 +16,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 const PORT = process.env.PORT || 8080;
+console.log(PORT)
 const app = express();
 app.use(bodyParser.json());
 
