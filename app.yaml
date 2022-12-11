@@ -1,0 +1,5 @@
+runtime: nodejs16
+service: police-violence
+env_variables:
+  CENSUS_KEY: ${CENSUS_KEY}
+  NODE_ENV: production

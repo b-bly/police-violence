@@ -1,0 +1,1 @@
+source .env && gcloud builds submit --region=us-central1 

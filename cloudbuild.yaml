@@ -1,0 +1,10 @@
+steps:
+- name: node
+  entrypoint: npm
+  args: ['run', 'prebuild']
+- name: node
+  entrypoint: npm
+  args: ['run', 'postbuild']
+- name: node
+  entrypoint: npm
+  args: ['run', 'build']
