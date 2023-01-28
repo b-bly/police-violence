@@ -24,6 +24,8 @@ export const fatalCsvToJSON = (csv: string) => {
         obj[headers[j]] = getCauseOfDeath(currentLine);
       } else if (headers[j] && headers[j] === columnHeadings.race) {
         obj[headers[j]] = getRace(currentLine);
+      } else if (/date/i.test(headers[j])) {
+        obj[headers[j].trim()] = currentLine[j]
       } else {
         obj[headers[j]] = currentLine[j];
       }

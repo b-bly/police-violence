@@ -142,7 +142,7 @@ class FatalService {
       blackToWhiteRiskData = censusService.raceDataByCounty; 
 
     } else if (location.toLowerCase() === 'states') {
-      blackToWhiteRiskData = censusService.raceDataByState; 
+      blackToWhiteRiskData = await censusService.raceDataByState; 
     } else {
       throw new Error('Invalid location.');
     }
@@ -158,7 +158,7 @@ class FatalService {
         const deathsRatio = blackToWhiteDeathRatios[locationId];
         const BWRaceRatio = record.raceRatio;
         const risk = deathsRatio / BWRaceRatio;  
-        
+
         riskData[locationId] = risk;
       }
     }

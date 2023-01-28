@@ -6,7 +6,7 @@ export const columnHeadings: IColumnHeadings = {
   states: "State",
   causeOfDeath: 'Cause of death',
   date: "Date of injury resulting in death (month/day/year)",
-  race: 'Subject\'s race'
+  race: 'Race'
 };
 
 export const causesOfDeath = [

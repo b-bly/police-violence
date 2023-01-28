@@ -38,7 +38,7 @@ export const Dropdown: React.FC<DropdownProps> = ({ listRef, label, choices,
       <label className="label">{label}</label>
       <div
         id="dropdown"
-        className={`ddmenu ${dropdownOpen ? "open" : ""}`}
+        className={`ddmenu ${dropdownOpen === label ? "open" : ""}`}
         onClick={toggleDropdown}>
         {`${selected ? selected : label}`}
         <ul

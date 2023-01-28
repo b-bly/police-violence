@@ -47,10 +47,10 @@ export const Graph: React.FC<graphProps> = ({ height, width, loading, setLoading
 
     const locationRef: React.RefObject<HTMLUListElement> = React.createRef();
     const yearsRef: React.RefObject<HTMLUListElement> = React.createRef();
-    const causeOfDeathRef: React.RefObject<HTMLUListElement> = React.createRef();
+    // const causeOfDeathRef: React.RefObject<HTMLUListElement> = React.createRef();
     const dependentRef: React.RefObject<HTMLUListElement> = React.createRef();
-    const dropdownRefs = [locationRef, yearsRef, causeOfDeathRef, dependentRef];
-    const dependentRange = ['deaths'] // ['risk', 'deaths']
+    const dropdownRefs = [locationRef, yearsRef, dependentRef]; // causeOfDeathRef
+    const dependentRange = ['deaths', 'risk'] // ['risk', 'deaths']
     const defaultLocation = 'counties';
     const defaultYear = 'all';
     const defaultCauseOfDeath = 'all';
